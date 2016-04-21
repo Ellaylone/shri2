@@ -1,7 +1,9 @@
 var studentApi = (function () {
     var sApi = {};
+    sApi.init = function(){
+    }
 
-    var module = new function () {
+    var module = (function () {
 
         var modules = {};
 
@@ -34,7 +36,7 @@ var studentApi = (function () {
 
         return module;
 
-    };
+    })();
 
     // описываем модуль
     module('http', function () {
@@ -63,24 +65,6 @@ var studentApi = (function () {
 
     var ajax = module('ajax');
     ajax.ololo();
-
-
-    // обращаемся к модулю
-    // var http = module('http');
-    // http.ololo() // ololo!
-
-
-    // var module = (function () {
-    //     var someInnerModuleVar;
-    //     // console.log("asd");
-
-    //     // крутой js код
-
-    //     return {
-    //         // publicMethod: publicMethod,
-    //         // init: init
-    //     };
-    // }());
 
     // start();
     return sApi;
