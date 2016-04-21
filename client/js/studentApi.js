@@ -1,6 +1,7 @@
 var studentApi = (function () {
     var sApi = {};
     sApi.init = function(){
+        sApi.fetch = module("fetch");
     }
 
     var module = (function () {
@@ -38,34 +39,70 @@ var studentApi = (function () {
 
     })();
 
+    module("fetch", function(){
+        const GET_PATHS = {
+            students: "/api/getStudents"
+        };
+
+        function json(res){
+            return res.json();
+        }
+
+        return {
+            students: function(callback){
+                if(typeof callback == "undefined"){
+                    console.warn("Callback is undefined");
+                }
+                fetch(GET_PATHS.students)
+                    .then(
+                        function(response) {
+                            if (response.status !== 200) {
+                                console.warn("Status Code: " + response.status);
+                                return;
+                            }
+                            response.json().then(callback);
+                        }
+                    )
+                    .catch(function(err) {
+                        console.warn("Fetch Error:", err);
+                    });
+            }
+        }
+    });
+
+    // module()
+
+    // var get = module("get");
+    // get.students(function(data){console.log(data)});
+
     // описываем модуль
-    module('http', function () {
+    module("http", function () {
 
         return {
             ololo: function () {
-                alert('ololo!')
+                alert("ololo!")
             }
         }
 
     });
 
 
-    module('ajax', function (http) {
+    module("ajax", function (http) {
 
-        http  //модуль автоматически подключился по имени аргумента
+        // http  //модуль автоматически подключился по имени аргумента
 
         return {
             ololo: function () {
-                http.ololo();
-                alert('test');
+                // http.ololo();
+                // alert("test");
             }
         }
 
     });
 
-    var ajax = module('ajax');
+    var ajax = module("ajax");
     ajax.ololo();
 
-    // start();
+    sApi.init();
     return sApi;
 }());
