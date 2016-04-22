@@ -8,10 +8,23 @@ app.get('/', function (req, res) {
     res.sendFile(path.normalize(__dirname + '/../client/index.html'));
 });
 
-app.get('/api/getStudents', function (req, res) {
-    res.setHeader('Content-Type', 'application/json; charset=UTF-8');
-    res.sendFile(path.normalize(__dirname + '/data/students.json'));
-});
+var apiToLocal = {
+    getStudents: "students.json",
+    getGroups: "groups.json",
+    getMentors: "mentors.json",
+    getTasks: "tasks.json"
+}
+function apiGet(req, res){
+    var clearUrl = req.url.replace(/\/api\/|\//gi, "");
+    if(apiToLocal[clearUrl] !== undefined){
+        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+        res.sendFile(path.normalize(__dirname + '/data/' + apiToLocal[clearUrl]));
+    } else {
+        res.sendStatus(404);
+    }
+}
+
+app.all('/api/*', apiGet);
 
 app.listen(3000, function () {
     console.log('Shri2 listening on port 3000!');
