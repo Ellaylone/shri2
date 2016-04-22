@@ -1,7 +1,7 @@
 var studentApi = (function () {
     var sApi = {};
     sApi.init = function(){
-        sApi.get = module("get");
+        sApi.fetch = module("fetch");
     }
 
     var module = (function () {
@@ -40,29 +40,6 @@ var studentApi = (function () {
     })();
 
     module("fetch", function(){
-        return {
-            json: function(url, callback){
-                if(typeof callback == "undefined"){
-                    console.warn("Callback is undefined");
-                }
-                fetch(url)
-                    .then(
-                        function(response) {
-                            if (response.status !== 200) {
-                                console.warn("Status Code: " + response.status);
-                                return;
-                            }
-                            response.json().then(callback);
-                        }
-                    )
-                    .catch(function(err) {
-                        console.warn("Fetch Error:", err);
-                    });
-            }
-        }
-    });
-
-    module("get", function(fetch){
         const GET_PATHS = {
             students: "/api/getStudents",
             mentors: "/api/getMentors",
@@ -74,49 +51,76 @@ var studentApi = (function () {
             return res.json();
         }
 
-        return {
-            students: function(callback){
-                fetch.json(GET_PATHS.students, callback);
-            },
-            mentors: function(callback){
-                fetch.json(GET_PATHS.mentors, callback);
-            },
-            groups: function(callback){
-                fetch.json(GET_PATHS.groups, callback);
-            },
-            tasks: function(callback){
-                fetch.json(GET_PATHS.tasks, callback);
+        return function(url, callback){
+            if(typeof callback == "undefined"){
+                console.warn("Callback is undefined");
             }
+            fetch(GET_PATHS[url])
+                .then(
+                    function(response) {
+                        if (response.status !== 200) {
+                            console.warn("Status Code: " + response.status);
+                            return;
+                        }
+                        response.json().then(callback);
+                    }
+                )
+                .catch(function(err) {
+                    console.warn("Fetch Error:", err);
+                });
         }
     });
 
-    // описываем модуль
-    module("http", function () {
+    module("fetch", function(){
+        const GET_PATHS = {
+            students: "/api/getStudents",
+            mentors: "/api/getMentors",
+            groups: "/api/getGroups",
+            tasks: "/api/getTasks"
+        };
 
-        return {
-            ololo: function () {
-                alert("ololo!")
-            }
+        function json(res){
+            return res.json();
         }
 
-    });
-
-
-    module("ajax", function (http) {
-
-        // http  //модуль автоматически подключился по имени аргумента
-
-        return {
-            ololo: function () {
-                // http.ololo();
-                // alert("test");
+        function fetchWrap(url, callback, data){
+            if(typeof url == "undefined"){
+                throw("Url is undefined");
             }
+            if(typeof callback == "undefined"){
+                throw("Callback is undefined");
+            }
+
+            var fetchInit = {};
+            if(typeof data == "undefined"){
+                fetchInit.method = "GET";
+            } else {
+                fetchInit.method = "POST";
+                fetchInit.body = data
+            }
+            fetch(GET_PATHS[url], fetchInit)
+                .then(
+                    function(response) {
+                        if (response.status !== 200) {
+                            console.warn("Status Code: " + response.status);
+                            return;
+                        }
+                        response.json().then(callback);
+                    }
+                )
+                .catch(function(err) {
+                    console.warn("Fetch Error:", err);
+                });
         }
 
+        return fetchWrap;
     });
 
-    var ajax = module("ajax");
-    ajax.ololo();
+    module("students", function(){
+
+        return {
+        }
+    });
 
     sApi.init();
     return sApi;
