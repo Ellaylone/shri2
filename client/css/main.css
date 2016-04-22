@@ -62,13 +62,6 @@ html, body {
     border-bottom: 0px;
 }
 
-.defaultadd {
-    margin: 20px 0;
-    padding: 20px 0;
-    border-top: 1px solid #e4e4e4;
-    border-bottom: 1px solid #e4e4e4;
-}
-
 .modal {
     background: #fff;
     position: fixed;
@@ -80,6 +73,13 @@ html, body {
     width: 85%;
     z-index: 2;
     transform: translate(-50%, -50%);
+}
+
+.modal__body {
+    margin: 20px 0;
+    padding: 20px 0;
+    border-top: 1px solid #e4e4e4;
+    border-bottom: 1px solid #e4e4e4;
 }
 
 .modal__close {

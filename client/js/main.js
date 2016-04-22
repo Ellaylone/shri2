@@ -1,5 +1,6 @@
 var Modal = function(elem, confirm, toggle){
     this.elem = elem;
+    this.body = this.elem.getElementsByClassName("modal__body")[0];
     this.overlay = document.getElementById("overlay");
     this.messageElem = this.elem.getElementsByClassName("modal__message")[0];
     var that = this;
@@ -8,14 +9,16 @@ var Modal = function(elem, confirm, toggle){
         function(){ that.hide(); },
         false
     );
-    this.elem.getElementsByClassName("modal__confirm")[0].addEventListener(
-        "click",
-        function(){
-            confirm();
-        },
-        false
-    );
-    if(typeof toggle !== 'undefined'){
+    if(typeof confirm !== "undefined"){
+        this.elem.getElementsByClassName("modal__confirm")[0].addEventListener(
+            "click",
+            function(){
+                confirm();
+            },
+            false
+        );
+    }
+    if(typeof toggle !== "undefined"){
         toggle.addEventListener("click", function(){ that.show(); }, false);
     }
 }
@@ -46,6 +49,36 @@ Modal.prototype.showMessage = function(message, type){
     if(type == "error"){
         this.messageElem.classList.add("modal__message__error");
     }
+}
+
+Modal.prototype.loadModal = function(params){
+    this.elem.getElementsByTagName("h2")[0].innerHTML = params.title;
+    this.body.classList.add(params.className);
+    this.unloadModal();
+    for(var i = 0; i < params.fields.length; i++){
+        var fieldWrap = document.createElement("div");
+        var wrapClass = params.className + "-" + params.fields[i].name;
+        var fieldId = wrapClass + "__" + params.fields[i].name;
+        fieldWrap.classList.add(wrapClass);
+
+        var fieldLabel = document.createElement("label");
+        fieldLabel.setAttribute("for", fieldId);
+        fieldLabel.innerText = params.fields[i].label;
+
+        if(params.fields[i].type != "textarea"){
+            var field = document.createElement("input");
+            field.id = fieldId;
+            field.setAttribute("type", params.fields[i].type);
+        }
+
+        fieldWrap.appendChild(fieldLabel);
+        fieldWrap.appendChild(field);
+        this.body.appendChild(fieldWrap);
+    }
+}
+
+Modal.prototype.unloadModal = function(){
+    this.body.innerHTML = "";
 }
 
 var listData = {
@@ -155,26 +188,50 @@ function formMentorsList(data){
 
 studentApi.mentors.get(formMentorsList);
 
-var modalList = [];
-var studentAddModal = new Modal(
-    document.getElementById("studentlistModal"),
-    addStudent,
-    document.getElementsByClassName("studentadd-button")[0]
+var mainModal = new Modal(
+    document.getElementById("mainModal")
 );
-modalList.push(studentAddModal);
 
-var groupAddModal = new Modal(
-    document.getElementById("grouplistModal"),
-    addGroup,
-    document.getElementsByClassName("groupadd-button")[0]
+document.getElementsByClassName("studentadd-button")[0].addEventListener(
+    "click",
+    function(){
+        mainModal.loadModal({
+            title: "Добавить студента",
+            className: "studentadd",
+            fields: [
+                {
+                    name: name,
+                    label: "Имя",
+                    type: "text"
+                }
+            ]
+        });
+        mainModal.show()
+    },
+    false
 );
-modalList.push(groupAddModal);
 
+document.getElementsByClassName("groupadd-button")[0].addEventListener(
+    "click",
+    function(){
+        mainModal.loadModal({
+            title: "Добавить группу",
+            className: "groupadd",
+            fields: [
+                {
+                    name: name,
+                    label: "Название",
+                    type: "text"
+                }
+            ]
+        });
+        mainModal.show()
+    },
+    false
+);
 
 document.getElementById("overlay").addEventListener("click", function(){
-    modalList.forEach(function(modal){
-        modal.hide();
-    });
+    mainModal.hide();
 }, false);
 
 var saveSuccessMessage = "Успешно сохранено";
