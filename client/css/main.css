@@ -13,7 +13,7 @@ html, body {
 }
 
 .button__default {
-    background-color: #60FF6A;
+    background-color: rgba(96, 255, 106, 0.3);
     padding: 10px;
     color: #381F25;
     display: inline-block;
@@ -47,10 +47,24 @@ html, body {
     list-style:none;
     padding: 0px;
     border: 1px solid #381F25;
+    padding: 5px;
     margin-bottom: 10px;
 }
 
+.studentlist-student {
+    border-bottom: 1px solid #e4e4e4;
+    padding: 5px 0;
+}
+
+.studentlist-student:last-child {
+    border-bottom: 0px;
+}
+
 .studentadd {
+    margin: 20px 0;
+    padding: 20px 0;
+    border-top: 1px solid #e4e4e4;
+    border-bottom: 1px solid #e4e4e4;
 }
 
 .modal {
@@ -71,6 +85,19 @@ html, body {
     top: 10px;
     right: 25px;
     cursor: pointer;
+}
+
+.modal__message {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    padding: 10px 20px;
+    background-color: rgba(96, 255, 106, 0.2);
+    border-radius: 15px;
+}
+
+.modal__message__error {
+    background-color: rgba(255, 0, 0, 0.2);
 }
 
 .modal__confirm {
