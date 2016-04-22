@@ -72,33 +72,33 @@ var studentApi = (function () {
     });
 
     module("fetch", function(){
-        const GET_PATHS = {
-            students: "/api/getStudents",
-            mentors: "/api/getMentors",
-            groups: "/api/getGroups",
-            tasks: "/api/getTasks"
-        };
+        const URL_PATHS = [
+            "getStudents", "getMentors", "getGroups", "getTasks"
+        ]
 
         function json(res){
             return res.json();
         }
 
-        function fetchWrap(url, callback, data){
+        return function(url, callback, data){
             if(typeof url == "undefined"){
                 throw("Url is undefined");
+            } else if(URL_PATHS.indexOf(url) < 0){
+                throw("Url is unknown");
             }
             if(typeof callback == "undefined"){
                 throw("Callback is undefined");
             }
-
+            var fetchUrl = "/api/" + url;
             var fetchInit = {};
+
             if(typeof data == "undefined"){
                 fetchInit.method = "GET";
             } else {
                 fetchInit.method = "POST";
                 fetchInit.body = data
             }
-            fetch(GET_PATHS[url], fetchInit)
+            fetch(fetchUrl, fetchInit)
                 .then(
                     function(response) {
                         if (response.status !== 200) {
@@ -111,9 +111,7 @@ var studentApi = (function () {
                 .catch(function(err) {
                     console.warn("Fetch Error:", err);
                 });
-        }
-
-        return fetchWrap;
+        };
     });
 
     module("students", function(){
