@@ -2,6 +2,7 @@ var studentApi = (function () {
     var sApi = {};
     sApi.init = function(){
         sApi.students = module("students");
+        sApi.groups = module("groups");
     }
 
     var module = (function () {
@@ -104,9 +105,17 @@ var studentApi = (function () {
             },
             edit: function(studentData, callback){
                 fetch("editStudents", callback, studentData);
+            }
+        }
+    });
+
+    module("groups", function(fetch){
+        return {
+            get: function(callback){
+                fetch("getGroups", callback);
             },
-            delete: function(studentData, callback){
-                fetch("deleteStudents", callback, studentData);
+            add: function(groupData, callback){
+                fetch("addGroups", callback, groupData);
             }
         }
     });

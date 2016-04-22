@@ -41,9 +41,10 @@ html, body {
 .side {
     float: left;
     width: 30%;
+    margin-right: 10px;
 }
 
-.studentlist {
+.defaultlist {
     list-style:none;
     padding: 0px;
     border: 1px solid #381F25;
@@ -51,16 +52,16 @@ html, body {
     margin-bottom: 10px;
 }
 
-.studentlist-student {
+.defaultlist-elem {
     border-bottom: 1px solid #e4e4e4;
     padding: 5px 0;
 }
 
-.studentlist-student:last-child {
+.defaultlist-elem:last-child {
     border-bottom: 0px;
 }
 
-.studentadd {
+.defaultadd {
     margin: 20px 0;
     padding: 20px 0;
     border-top: 1px solid #e4e4e4;
