@@ -15,6 +15,14 @@
                 <ul class="grouplist defaultlist"></ul>
                 <div class="groupadd-button button__default needsclick">Добавить группу</div>
             </div>
+            <div class="side">
+                <ul class="tasklist defaultlist"></ul>
+                <div class="taskadd-button button__default needsclick">Добавить задание</div>
+            </div>
+            <div class="side">
+                <ul class="mentorlist defaultlist"></ul>
+                <div class="mentoradd-button button__default needsclick">Добавить ментора</div>
+            </div>
         </div>
         <div class="modal hidden" id="studentlistModal">
             <div class="modal__close">
@@ -50,6 +58,22 @@
             <div class="modal__message hidden"></div>
             <div class="modal__confirm button__default needsclick">
                 Применить настройки
+            </div>
+        </div>
+        <div class="modal hidden" id="mainModal">
+            <div class="modal__close">
+                <svg width="25px" height="25px">
+                    <path fill="transparent" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 8,8 L 17,17 M 17,8 L 8,17"/>
+                </svg>
+            </div>
+            <div class="modal__body">
+                <h2></h2>
+                <div class="defaultadd">
+                </div>
+            </div>
+            <div class="modal__message hidden"></div>
+            <div class="modal__confirm button__default needsclick">
+                Применить
             </div>
         </div>
         <div class="overlay hidden" id="overlay"></div>

@@ -3,6 +3,8 @@ var studentApi = (function () {
     sApi.init = function(){
         sApi.students = module("students");
         sApi.groups = module("groups");
+        sApi.tasks = module("tasks");
+        sApi.mentors = module("mentors");
     }
 
     var module = (function () {
@@ -116,6 +118,28 @@ var studentApi = (function () {
             },
             add: function(groupData, callback){
                 fetch("addGroups", callback, groupData);
+            }
+        }
+    });
+
+    module("tasks", function(fetch){
+        return {
+            get: function(callback){
+                fetch("getTasks", callback);
+            },
+            add: function(taskData, callback){
+                fetch("addTasks", callback, taskData);
+            }
+        }
+    });
+
+    module("mentors", function(fetch){
+        return {
+            get: function(callback){
+                fetch("getMentors", callback);
+            },
+            add: function(mentorData, callback){
+                fetch("addMentors", callback, mentorData);
             }
         }
     });

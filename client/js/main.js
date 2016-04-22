@@ -48,11 +48,19 @@ Modal.prototype.showMessage = function(message, type){
     }
 }
 
+var listData = {
+    students: false,
+    groups: false,
+    tasks: false,
+    mentors: false
+}
+
 function formStudentList(data){
     if(typeof data.error != "undefined"){
         console.log(data.error);
     } else {
         var studentlist = document.getElementsByClassName("studentlist")[0];
+        listData.students = data;
         for(var i = 0; i < data.length; i++){
             var student = document.createElement("li");
             student.classList.add("studentlist-student");
@@ -75,6 +83,7 @@ function formGroupsList(data){
     if(typeof data.error != "undefined"){
         console.log(data.error);
     } else {
+        listData.groups = data;
         var grouplist = document.getElementsByClassName("grouplist")[0];
         var students = document.getElementsByClassName("studentlist")[0].getElementsByClassName("studentlist-student");
         for(var i = 0; i < data.length; i++){
@@ -100,6 +109,51 @@ function formGroupsList(data){
 }
 
 studentApi.groups.get(formGroupsList);
+
+function formTaskList(data){
+    if(typeof data.error != "undefined"){
+        console.log(data.error);
+    } else {
+        listData.tasks = data;
+        var tasklist = document.getElementsByClassName("tasklist")[0];
+        for(var i = 0; i < data.length; i++){
+            var task = document.createElement("li");
+            task.classList.add("tasklist-task");
+            task.classList.add("defaultlist-elem");
+            task.classList.add("needsclick");
+            task.dataset.id = data[i].id;
+
+            var taskText = document.createTextNode(data[i].name);
+            task.appendChild(taskText);
+
+            tasklist.appendChild(task);
+        }
+    }
+}
+studentApi.tasks.get(formTaskList);
+
+function formMentorsList(data){
+    if(typeof data.error != "undefined"){
+        console.log(data.error);
+    } else {
+        listData.mentors = data;
+        var mentorlist = document.getElementsByClassName("mentorlist")[0];
+        for(var i = 0; i < data.length; i++){
+            var mentor = document.createElement("li");
+            mentor.classList.add("mentorlist-mentor");
+            mentor.classList.add("defaultlist-elem");
+            mentor.classList.add("needsclick");
+            mentor.dataset.id = data[i].id;
+
+            var mentorText = document.createTextNode(data[i].name);
+            mentor.appendChild(mentorText);
+
+            mentorlist.appendChild(mentor);
+        }
+    }
+}
+
+studentApi.mentors.get(formMentorsList);
 
 var modalList = [];
 var studentAddModal = new Modal(
