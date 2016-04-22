@@ -54,7 +54,8 @@ html, body {
 
 .defaultlist-elem {
     border-bottom: 1px solid #e4e4e4;
-    padding: 5px 0;
+    padding: 5px 0 5px 5px;
+    margin: 2px 0;
 }
 
 .defaultlist-elem:last-child {

@@ -76,17 +76,25 @@ function formGroupsList(data){
         console.log(data.error);
     } else {
         var grouplist = document.getElementsByClassName("grouplist")[0];
+        var students = document.getElementsByClassName("studentlist")[0].getElementsByClassName("studentlist-student");
         for(var i = 0; i < data.length; i++){
             var group = document.createElement("li");
             group.classList.add("grouplist-group");
             group.classList.add("defaultlist-elem");
             group.classList.add("needsclick");
             group.dataset.id = data[i].id;
+            var borderStyle = "8px solid rgba(" + parseInt(Math.random()*255) + ", " + parseInt(Math.random()*255) + ", " +  parseInt(Math.random()*255) + ", 1)";
+            group.style["border-left"] = borderStyle;
 
             var groupText = document.createTextNode(data[i].name);
             group.appendChild(groupText);
 
             grouplist.appendChild(group);
+            for(var j = 0; j < students.length; j++){
+                if(students[j].dataset.groupId == data[i].id){
+                    students[j].style["border-left"] = borderStyle;
+                }
+            }
         }
     }
 }
