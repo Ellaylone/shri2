@@ -1,7 +1,7 @@
 var studentApi = (function () {
     var sApi = {};
     sApi.init = function(){
-        sApi.fetch = module("fetch");
+        sApi.students = module("students");
     }
 
     var module = (function () {
@@ -40,41 +40,13 @@ var studentApi = (function () {
     })();
 
     module("fetch", function(){
-        const GET_PATHS = {
-            students: "/api/getStudents",
-            mentors: "/api/getMentors",
-            groups: "/api/getGroups",
-            tasks: "/api/getTasks"
-        };
-
-        function json(res){
-            return res.json();
-        }
-
-        return function(url, callback){
-            if(typeof callback == "undefined"){
-                console.warn("Callback is undefined");
-            }
-            fetch(GET_PATHS[url])
-                .then(
-                    function(response) {
-                        if (response.status !== 200) {
-                            console.warn("Status Code: " + response.status);
-                            return;
-                        }
-                        response.json().then(callback);
-                    }
-                )
-                .catch(function(err) {
-                    console.warn("Fetch Error:", err);
-                });
-        }
-    });
-
-    module("fetch", function(){
         const URL_PATHS = [
-            "getStudents", "getMentors", "getGroups", "getTasks"
+            "getStudents", "getMentors", "getGroups", "getTasks",
+            "addStudents", "addMentors", "addGroups", "addTasks",
+            "editStudents", "editMentors", "editGroups", "editTasks",
+            "removeStudents", "removeMentors", "removeGroups", "removeTasks"
         ]
+        const URL_PREFIX = "/api/";
 
         function json(res){
             return res.json();
@@ -89,7 +61,7 @@ var studentApi = (function () {
             if(typeof callback == "undefined"){
                 throw("Callback is undefined");
             }
-            var fetchUrl = "/api/" + url;
+            var fetchUrl = URL_PREFIX + url;
             var fetchInit = {};
 
             if(typeof data == "undefined"){
@@ -98,11 +70,15 @@ var studentApi = (function () {
                 fetchInit.method = "POST";
                 fetchInit.body = data
             }
-            fetch(fetchUrl, fetchInit)
+            return fetch(fetchUrl, fetchInit)
                 .then(
                     function(response) {
                         if (response.status !== 200) {
                             console.warn("Status Code: " + response.status);
+                            callback({
+                                status: false,
+                                error: response.status
+                            });
                             return;
                         }
                         response.json().then(callback);
@@ -110,13 +86,28 @@ var studentApi = (function () {
                 )
                 .catch(function(err) {
                     console.warn("Fetch Error:", err);
+                    callback({
+                        status: false,
+                        error: err
+                    });
                 });
         };
     });
 
-    module("students", function(){
-
+    module("students", function(fetch){
         return {
+            get: function(callback){
+                fetch("getStudents", callback);
+            },
+            add: function(studentData, callback){
+                fetch("addStudents", callback, studentData);
+            },
+            edit: function(studentData, callback){
+                fetch("editStudents", callback, studentData);
+            },
+            delete: function(studentData, callback){
+                fetch("deleteStudents", callback, studentData);
+            }
         }
     });
 

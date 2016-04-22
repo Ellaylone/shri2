@@ -2,10 +2,31 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <!-- <script type="text/javascript" src="js/main.js"></script> -->
+        <link type="text/css" rel="stylesheet" href="css/main.css">
         <title>shri2</title>
     </head>
     <body>
+        <div class="wrap">
+            <div class="side">
+                <ul class="studentlist"></ul>
+                <div class="studentadd-button button__default needsclick">Добавить студента</div>
+            </div>
+        </div>
+        <div class="modal hidden" id="studentlistModal">
+            <div class="modal__close">
+                <svg width="25px" height="25px">
+                    <path fill="transparent" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M 8,8 L 17,17 M 17,8 L 8,17"/>
+                </svg>
+            </div>
+            <div class="studentadd">
+                <h2>Добавить студента</h2>
+            </div>
+            <div class="modal__confirm button__default needsclick">
+                Применить настройки
+            </div>
+        </div>
+        <div class="overlay hidden" id="overlay"></div>
         <script type="text/javascript" src="js/studentApi.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
     </body>
 </html>
