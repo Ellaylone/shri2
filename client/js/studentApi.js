@@ -1,7 +1,7 @@
 var studentApi = (function () {
     var sApi = {};
     sApi.init = function(){
-        sApi.fetch = module("fetch");
+        sApi.get = module("get");
     }
 
     var module = (function () {
@@ -40,20 +40,12 @@ var studentApi = (function () {
     })();
 
     module("fetch", function(){
-        const GET_PATHS = {
-            students: "/api/getStudents"
-        };
-
-        function json(res){
-            return res.json();
-        }
-
         return {
-            students: function(callback){
+            json: function(url, callback){
                 if(typeof callback == "undefined"){
                     console.warn("Callback is undefined");
                 }
-                fetch(GET_PATHS.students)
+                fetch(url)
                     .then(
                         function(response) {
                             if (response.status !== 200) {
@@ -70,10 +62,33 @@ var studentApi = (function () {
         }
     });
 
-    // module()
+    module("get", function(fetch){
+        const GET_PATHS = {
+            students: "/api/getStudents",
+            mentors: "/api/getMentors",
+            groups: "/api/getGroups",
+            tasks: "/api/getTasks"
+        };
 
-    // var get = module("get");
-    // get.students(function(data){console.log(data)});
+        function json(res){
+            return res.json();
+        }
+
+        return {
+            students: function(callback){
+                fetch.json(GET_PATHS.students, callback);
+            },
+            mentors: function(callback){
+                fetch.json(GET_PATHS.mentors, callback);
+            },
+            groups: function(callback){
+                fetch.json(GET_PATHS.groups, callback);
+            },
+            tasks: function(callback){
+                fetch.json(GET_PATHS.tasks, callback);
+            }
+        }
+    });
 
     // описываем модуль
     module("http", function () {
