@@ -90,7 +90,6 @@ Modal.prototype.loadModal = function(params){
                     field.appendChild(fieldMultiple);
                     field.appendChild(fieldMultipleLabel);
                 }
-                console.log(params.fields[i].source);
                 break;
             }
         default:
@@ -241,6 +240,41 @@ document.getElementsByClassName("studentadd-button")[0].addEventListener(
             ]
         });
         mainModal.show()
+    },
+    false
+);
+
+document.getElementsByClassName("studentlist")[0].addEventListener(
+    "click",
+    function(e){
+        if(e.target.classList.contains("studentlist-student")){
+            mainModal.loadModal({
+                title: "Редактировать студента",
+                className: "studentadd",
+                source: listData.students,
+                studentId: e.target.dataset.id,
+                fields: [
+                    {
+                        name: "name",
+                        label: "Имя",
+                        type: "text"
+                    },
+                    {
+                        name: "groups",
+                        label: "Группа",
+                        type: "radio",
+                        source: listData.groups
+                    },
+                    {
+                        name: "tasks",
+                        label: "Задания",
+                        type: "select",
+                        source: listData.tasks
+                    }
+                ]
+            });
+            mainModal.show()
+        }
     },
     false
 );
