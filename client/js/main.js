@@ -55,6 +55,14 @@ Modal.prototype.loadModal = function(params){
     this.elem.getElementsByTagName("h2")[0].innerHTML = params.title;
     this.body.classList.add(params.className);
     this.unloadModal();
+    var k = -1;
+    if(typeof params.source != "undefined" && typeof params.myId != "undefined"){
+        for(k = 0; k < params.source.length; k++){
+            if(params.source[k].id == parseInt(params.myId)){
+                break;
+            }
+        }
+    }
     for(var i = 0; i < params.fields.length; i++){
         var fieldWrap = document.createElement("div");
         var wrapClass = params.className + "-" + params.fields[i].name;
@@ -69,11 +77,19 @@ Modal.prototype.loadModal = function(params){
         switch(params.fields[i].type){
         case "textarea":
             field = document.createElement("textarea");
+            if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
+                field.value = params.source[k][params.fields[i].name];
+            }
             break;
         case "radio":
         case "checkbox":
+        case "select":
             if(typeof params.fields[i].source != "undefined"){
                 field = document.createElement("div");
+                var activeMultiple;
+                if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
+                    activeMultiple = params.source[k][params.fields[i].name];
+                }
 
                 for(var j = 0; j < params.fields[i].source.length; j++){
                     var fieldMultiple = document.createElement("input");
@@ -81,6 +97,9 @@ Modal.prototype.loadModal = function(params){
                     fieldMultiple.value = params.fields[i].source[j].id;
                     fieldMultiple.name = fieldId + "__" + params.fields[i].type;
                     fieldMultiple.id = fieldId + "__" + params.fields[i].type + params.fields[i].source[j].id;
+                    if(typeof activeMultiple == "number" && params.fields[i].source[j].id == activeMultiple){
+                        fieldMultiple.setAttribute("checked", "checked");
+                    }
 
                     var fieldMultipleLabel = document.createElement("label");
                     fieldMultipleLabel.setAttribute("for", fieldMultiple.id);
@@ -95,6 +114,9 @@ Modal.prototype.loadModal = function(params){
         default:
             field = document.createElement("input");
             field.setAttribute("type", params.fields[i].type);
+            if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
+                field.value = params.source[k][params.fields[i].name];
+            }
         }
         field.id = fieldId;
 
@@ -232,7 +254,7 @@ document.getElementsByClassName("studentadd-button")[0].addEventListener(
                     type: "text"
                 },
                 {
-                    name: "groups",
+                    name: "group",
                     label: "Группа",
                     type: "radio",
                     source: listData.groups
@@ -252,7 +274,7 @@ document.getElementsByClassName("studentlist")[0].addEventListener(
                 title: "Редактировать студента",
                 className: "studentadd",
                 source: listData.students,
-                studentId: e.target.dataset.id,
+                myId: e.target.dataset.id,
                 fields: [
                     {
                         name: "name",
@@ -260,7 +282,7 @@ document.getElementsByClassName("studentlist")[0].addEventListener(
                         type: "text"
                     },
                     {
-                        name: "groups",
+                        name: "group",
                         label: "Группа",
                         type: "radio",
                         source: listData.groups
