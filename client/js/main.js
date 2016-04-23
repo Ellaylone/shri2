@@ -71,23 +71,24 @@ Modal.prototype.loadModal = function(params){
             field = document.createElement("textarea");
             break;
         case "radio":
+        case "checkbox":
             if(typeof params.fields[i].source != "undefined"){
                 field = document.createElement("div");
 
                 for(var j = 0; j < params.fields[i].source.length; j++){
-                    var fieldRadio = document.createElement("input");
-                    fieldRadio.setAttribute("type", params.fields[i].type);
-                    fieldRadio.value = params.fields[i].source[j].id;
-                    fieldRadio.name = fieldId + "__radio";
-                    fieldRadio.id = fieldId + "__radio" + params.fields[i].source[j].id;
+                    var fieldMultiple = document.createElement("input");
+                    fieldMultiple.setAttribute("type", params.fields[i].type);
+                    fieldMultiple.value = params.fields[i].source[j].id;
+                    fieldMultiple.name = fieldId + "__" + params.fields[i].type;
+                    fieldMultiple.id = fieldId + "__" + params.fields[i].type + params.fields[i].source[j].id;
 
-                    var fieldRadioLabel = document.createElement("label");
-                    fieldRadioLabel.setAttribute("for", fieldRadio.id);
-                    fieldRadioLabel.innerText = params.fields[i].source[j].name;
-                    fieldRadioLabel.classList.add("needsclick");
+                    var fieldMultipleLabel = document.createElement("label");
+                    fieldMultipleLabel.setAttribute("for", fieldMultiple.id);
+                    fieldMultipleLabel.innerText = params.fields[i].source[j].name;
+                    fieldMultipleLabel.classList.add("needsclick");
 
-                    field.appendChild(fieldRadio);
-                    field.appendChild(fieldRadioLabel);
+                    field.appendChild(fieldMultiple);
+                    field.appendChild(fieldMultipleLabel);
                 }
                 console.log(params.fields[i].source);
                 break;
@@ -232,7 +233,7 @@ document.getElementsByClassName("studentadd-button")[0].addEventListener(
                     type: "text"
                 },
                 {
-                    name: "group",
+                    name: "groups",
                     label: "Группа",
                     type: "radio",
                     source: listData.groups
@@ -279,6 +280,18 @@ document.getElementsByClassName("taskadd-button")[0].addEventListener(
                     name: "description",
                     label: "Описание",
                     type: "textarea"
+                },
+                {
+                    name: "groups",
+                    label: "Группа",
+                    type: "checkbox",
+                    source: listData.groups
+                },
+                {
+                    name: "students",
+                    label: "Студенты",
+                    type: "checkbox",
+                    source: listData.students
                 }
             ]
         });
