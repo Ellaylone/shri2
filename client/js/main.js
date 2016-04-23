@@ -111,8 +111,48 @@ Modal.prototype.loadModal = function(params){
                 break;
             }
         case "select":
-            if(typeof params.fields[i].source != "undefined"){
+            if(params.fields[i].name == "taskResults"){
+                field = document.createElement("div");
+                var activeMultiple;
+                if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
+                    activeMultiple = params.source[k][params.fields[i].name];
+                }
+                for(var j = 0; j < params.source[k][params.fields[i].name].length; j++){
+                    var taskInfo;
+                    for(var l = 0; l < params.fields[i].source.length; l++){
+                        if(params.fields[i].source[l].id == params.source[k][params.fields[i].name][j][0]){
+                            taskInfo = params.fields[i].source[l];
+                            break;
+                        }
+                    }
+                    var markWrap = document.createElement("div");
+                    markWrap.dataset.id = params.source[k][params.fields[i].name][j][0];
+
+                    var markLabel = document.createElement("label");
+                    markLabel.innerText = taskInfo.name;
+
+                    var markSelect = document.createElement("select");
+                    for(var mark = 0; mark <= 5; mark++){
+                        var markOption = document.createElement("option");
+                        markOption.value = mark;
+                        markOption.innerHTML = mark;
+
+                        if(parseInt(mark) == params.source[k][params.fields[i].name][j][1]){
+                            markOption.setAttribute("selected", "selected");
+                        }
+
+                        markSelect.appendChild(markOption);
+                    }
+
+                    markWrap.appendChild(markLabel);
+                    markWrap.appendChild(markSelect);
+                    field.appendChild(markWrap);
+                }
+                console.log(activeMultiple);
+                break;
+            } else if(typeof params.fields[i].source != "undefined"){
                 field = document.createElement("select");
+
                 field.setAttribute("multiple", "multiple");
                 field.name = fieldId;
 
@@ -311,7 +351,13 @@ document.getElementsByClassName("studentlist")[0].addEventListener(
                         label: "Задания",
                         type: "select",
                         source: listData.tasks
-                    }
+                    },
+                    {
+                        name: "taskResults",
+                        label: "Оценки",
+                        type: "select",
+                        source: listData.tasks
+                    },
                 ]
             });
             mainModal.show()
