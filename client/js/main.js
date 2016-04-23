@@ -83,7 +83,6 @@ Modal.prototype.loadModal = function(params){
             break;
         case "radio":
         case "checkbox":
-        case "select":
             if(typeof params.fields[i].source != "undefined"){
                 field = document.createElement("div");
                 var activeMultiple;
@@ -108,6 +107,26 @@ Modal.prototype.loadModal = function(params){
 
                     field.appendChild(fieldMultiple);
                     field.appendChild(fieldMultipleLabel);
+                }
+                break;
+            }
+        case "select":
+            if(typeof params.fields[i].source != "undefined"){
+                field = document.createElement("select");
+                field.setAttribute("multiple", "multiple");
+                field.name = fieldId;
+
+                for(var j = 0; j < params.fields[i].source.length; j++){
+                    var fieldSelect = document.createElement("option");
+                    fieldSelect.value = params.fields[i].source[j].id;
+                    fieldSelect.innerHTML = params.fields[i].source[j].name;
+                    if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
+                        if(params.source[k][params.fields[i].name].indexOf(params.fields[i].source[j].id) >=0){
+                            fieldSelect.setAttribute("selected", "selected");
+                        }
+                    }
+
+                    field.appendChild(fieldSelect);
                 }
                 break;
             }
@@ -255,7 +274,7 @@ document.getElementsByClassName("studentadd-button")[0].addEventListener(
                 },
                 {
                     name: "group",
-                    label: "Группа",
+                    label: "Команда",
                     type: "radio",
                     source: listData.groups
                 }
@@ -283,7 +302,7 @@ document.getElementsByClassName("studentlist")[0].addEventListener(
                     },
                     {
                         name: "group",
-                        label: "Группа",
+                        label: "Команда",
                         type: "radio",
                         source: listData.groups
                     },
