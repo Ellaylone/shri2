@@ -65,11 +65,38 @@ Modal.prototype.loadModal = function(params){
         fieldLabel.setAttribute("for", fieldId);
         fieldLabel.innerText = params.fields[i].label;
 
-        if(params.fields[i].type != "textarea"){
-            var field = document.createElement("input");
-            field.id = fieldId;
+        var field;
+        switch(params.fields[i].type){
+        case "textarea":
+            field = document.createElement("textarea");
+            break;
+        case "radio":
+            if(typeof params.fields[i].source != "undefined"){
+                field = document.createElement("div");
+
+                for(var j = 0; j < params.fields[i].source.length; j++){
+                    var fieldRadio = document.createElement("input");
+                    fieldRadio.setAttribute("type", params.fields[i].type);
+                    fieldRadio.value = params.fields[i].source[j].id;
+                    fieldRadio.name = fieldId + "__radio";
+                    fieldRadio.id = fieldId + "__radio" + params.fields[i].source[j].id;
+
+                    var fieldRadioLabel = document.createElement("label");
+                    fieldRadioLabel.setAttribute("for", fieldRadio.id);
+                    fieldRadioLabel.innerText = params.fields[i].source[j].name;
+                    fieldRadioLabel.classList.add("needsclick");
+
+                    field.appendChild(fieldRadio);
+                    field.appendChild(fieldRadioLabel);
+                }
+                console.log(params.fields[i].source);
+                break;
+            }
+        default:
+            field = document.createElement("input");
             field.setAttribute("type", params.fields[i].type);
         }
+        field.id = fieldId;
 
         fieldWrap.appendChild(fieldLabel);
         fieldWrap.appendChild(field);
@@ -200,9 +227,15 @@ document.getElementsByClassName("studentadd-button")[0].addEventListener(
             className: "studentadd",
             fields: [
                 {
-                    name: name,
+                    name: "name",
                     label: "Имя",
                     type: "text"
+                },
+                {
+                    name: "group",
+                    label: "Группа",
+                    type: "radio",
+                    source: listData.groups
                 }
             ]
         });
@@ -219,7 +252,7 @@ document.getElementsByClassName("groupadd-button")[0].addEventListener(
             className: "groupadd",
             fields: [
                 {
-                    name: name,
+                    name: "name",
                     label: "Название",
                     type: "text"
                 }
@@ -229,6 +262,53 @@ document.getElementsByClassName("groupadd-button")[0].addEventListener(
     },
     false
 );
+
+document.getElementsByClassName("taskadd-button")[0].addEventListener(
+    "click",
+    function(){
+        mainModal.loadModal({
+            title: "Добавить задачу",
+            className: "taskadd",
+            fields: [
+                {
+                    name: "name",
+                    label: "Название",
+                    type: "text"
+                },
+                {
+                    name: "description",
+                    label: "Описание",
+                    type: "textarea"
+                }
+            ]
+        });
+        mainModal.show()
+    },
+    false
+);
+
+document.getElementsByClassName("mentoradd-button")[0].addEventListener(
+    "click",
+    function(){
+        mainModal.loadModal({
+            title: "Добавить ментора",
+            className: "mentoradd",
+            fields: [
+                {
+                    name: "name",
+                    label: "Имя",
+                    type: "text"
+                }
+            ]
+        });
+        mainModal.show()
+    },
+    false
+);
+
+document.getElementById("overlay").addEventListener("click", function(){
+    mainModal.hide();
+}, false);
 
 document.getElementById("overlay").addEventListener("click", function(){
     mainModal.hide();
