@@ -81,7 +81,7 @@ function readyDefaultSubmitData(form){
     var postData = {};
     var error = false;
     [].forEach.call(form.querySelectorAll("input, textarea, select"), function(field){
-        if(field.value == ""){
+        if(field.value == "" && field.type != "hidden"){
             if(field.className == ""){
                 field.className = "fielderror";
             } else {
@@ -115,6 +115,7 @@ function onStudentAddSubmit(form){
 }
 
 function onTaskAddSubmit(form){
+    //NOTE формируем список всех пользователей кому выставлен таск
     var postData = readyDefaultSubmitData(form);
     var students = [];
     var groups = [];
@@ -159,6 +160,20 @@ function onTaskAddSubmit(form){
 
 function onMentorAddSubmit(form){
     var postData = readyDefaultSubmitData(form);
+    var preferedStudents = [];
+    [].forEach.call(form.querySelector(".mentoradd-preferedStudents").querySelectorAll("li"), function(student){
+        preferedStudents.push(parseInt(student.dataset.id));
+    })
+
+    if(postData.students == ""){
+        postData.students = [];
+    } else {
+        postData.students = postData.students.split(",");
+        [].forEach.call(postData.students, function(student, i){
+            postData.students[i] = +postData.students[i];
+        });
+    }
+    postData.preferedStudents = preferedStudents;
     if(postData){
         postData = JSON.stringify(postData);
         studentApi.groups.save(postData, function(data){
@@ -235,7 +250,7 @@ function renderMentorFormStudents(data){
     })
 
     return `
-        <div class="studentadd-preferedStudents">
+        <div class="mentoradd-preferedStudents">
             <label>Приоритет студентов</label>
             <br />
             <ul class="sortable">${sortableStudents}</ul>
@@ -251,6 +266,7 @@ function renderMentorUpdateForm(title, data){
         <div class="modal__body__fields">
         <form class="mentoradd">
         <input type="hidden" name="id" value="${data.id}">
+        <input type="hidden" name="students" value="${data.students.toString()}">
         <div class="mentoradd-name">
         <label for="mentoradd-name__name" class="needsclick">Имя</label>
         <input name="name" type="text" id="mentoradd-name__name" value="${data.name}">
