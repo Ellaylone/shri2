@@ -116,6 +116,35 @@ function onStudentAddSubmit(form){
 
 function onTaskAddSubmit(form){
     var postData = readyDefaultSubmitData(form);
+    var students = [];
+    var groups = [];
+    var activeStudents = [];
+    [].forEach.call(form.querySelector("#taskadd-groups__groups").querySelectorAll("input:checked"), function(group){
+        groups.push(parseInt(group.value));
+    });
+
+    [].forEach.call(form.querySelector("#taskadd-students__students").querySelectorAll("input:checked"), function(student){
+        students.push(parseInt(student.value));
+    });
+
+    if(groups.length > 0){
+        listData.students.forEach(function(student){
+            if(groups.indexOf(student.group) >= 0){
+                activeStudents.push(student.id);
+            }
+        })
+    }
+    if(students.length > 0){
+        students.forEach(function(student){
+            if(activeStudents.indexOf(student) < 0){
+                activeStudents.push(student);
+            }
+        })
+    }
+
+    delete postData["taskadd-groups__groups__checkbox"];
+    delete postData["taskadd-students__students__checkbox"]
+    postData.students = activeStudents;
     if(postData){
         postData = JSON.stringify(postData);
         studentApi.tasks.save(postData, function(data){
