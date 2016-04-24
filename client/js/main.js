@@ -43,51 +43,6 @@ Modal.prototype.unloadModal = function(){
     this.body.innerHTML = "";
 }
 
-var saveSuccessMessage = "Успешно сохранено";
-var saveServerError = "Возникла ошибка при сохранении";
-
-function addStudent(){
-    var nameElem = document.getElementById("studentadd-name__name");
-    var postData = {
-        name: nameElem.value
-    };
-    if(postData.name != ""){
-        nameElem.style["background-color"] = "";
-        studentApi.students.add(postData, function(data){
-            if(typeof data.error != "undefined"){
-                studentAddModal.showMessage(saveServerError, "error");
-            } else {
-                studentAddModal.showMessage(saveSuccessMessage);
-                setTimeout(function(){studentAddModal.hide()}, 1000);
-            }
-        });
-    } else {
-        nameElem.style["background-color"] = "rgba(255, 0, 0, 0.2)";
-        studentAddModal.showMessage("Нужно ввести имя", "error");
-    }
-}
-
-function addGroup(){
-    var nameElem = document.getElementById("groupadd-name__name");
-    var postData = {
-        name: nameElem.value
-    };
-    if(postData.name != ""){
-        nameElem.style["background-color"] = "";
-        studentApi.groups.add(postData, function(data){
-            if(typeof data.error != "undefined"){
-                groupAddModal.showMessage(saveServerError, "error");
-            } else {
-                groupAddModal.showMessage(saveSuccessMessage);
-                setTimeout(function(){groupAddModal.hide()}, 1000);
-            }
-        });
-    } else {
-        nameElem.style["background-color"] = "rgba(255, 0, 0, 0.2)";
-        groupAddModal.showMessage("Нужно ввести название", "error");
-    }
-}
-
 function onModalConfirmClick(e){
     var form = e.target.parentNode.getElementsByTagName("form")[0];
 
@@ -107,7 +62,19 @@ function onModalConfirmClick(e){
     default:
         break;
     }
-    console.log();
+}
+
+var saveSuccessMessage = "Успешно сохранено";
+var saveServerError = "Возникла ошибка при сохранении";
+
+function saveSuccess(updateList){
+    updateList();
+    mainModal.showMessage(saveSuccessMessage);
+    setTimeout(function(){mainModal.hide()}, 1000);
+}
+
+function saveError(){
+    mainModal.showMessage(saveServerError, "error");
 }
 
 function readyDefaultSubmitData(form){
@@ -138,7 +105,11 @@ function onStudentAddSubmit(form){
     if(postData){
         postData = JSON.stringify(postData);
         studentApi.students.save(postData, function(data){
-            console.log(data);
+            if(typeof data.status != "undefined" && data.status == "ok"){
+                saveSuccess(function(){studentApi.groups.get(updateGroupsList)});
+            } else {
+                saveError();
+            }
         });
     }
 }
@@ -148,7 +119,11 @@ function onTaskAddSubmit(form){
     if(postData){
         postData = JSON.stringify(postData);
         studentApi.tasks.save(postData, function(data){
-            console.log(data);
+            if(typeof data.status != "undefined" && data.status == "ok"){
+                saveSuccess(function(){studentApi.groups.get(updateGroupsList)});
+            } else {
+                saveError();
+            }
         });
     }
 }
@@ -158,7 +133,11 @@ function onMentorAddSubmit(form){
     if(postData){
         postData = JSON.stringify(postData);
         studentApi.groups.save(postData, function(data){
-            console.log(data);
+            if(typeof data.status != "undefined" && data.status == "ok"){
+                saveSuccess(function(){studentApi.groups.get(updateGroupsList)});
+            } else {
+                saveError();
+            }
         });
     }
 }
@@ -168,7 +147,11 @@ function onGroupAddSubmit(form){
     if(postData){
         postData = JSON.stringify(postData);
         studentApi.groups.save(postData, function(data){
-            console.log(data);
+            if(typeof data.status != "undefined" && data.status == "ok"){
+                saveSuccess(function(){studentApi.groups.get(updateGroupsList)});
+            } else {
+                saveError();
+            }
         });
     }
 }
@@ -195,9 +178,7 @@ function onUpdateMentorClick(e){
     callNativesortable();
 }
 
-//WORK
 function renderMentorFormOneStudent(data){
-    console.log(data);
     return `
         <li data-id="${data.id}" draggable="true" class="sortable-item needsclick">${data.name}</li>
     `;
