@@ -4,7 +4,7 @@
     "group": 0,
     "tasks": [1,2,3],
     "taskResults": [[1, 0],[2, 5],[3, 5]],
-    "preferedMentors": [1,0,2]
+    "preferedMentors": [1,2]
 }, {
     "name": "Петр Петров",
     "id": 2,
@@ -18,5 +18,5 @@
     "group": 1,
     "tasks": [2,3],
     "taskResults": [[2, 5],[3, 4]],
-    "preferedMentors": []
+    "preferedMentors": [2,3]
 }]

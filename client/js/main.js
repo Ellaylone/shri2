@@ -180,7 +180,7 @@ function onDefaultEdit(modalHTML){
 }
 
 function onAddMentorClick(){
-    onDefaultEdit(renderMentorForm("Добавить ментора", {
+    onDefaultEdit(renderMentorAddForm("Добавить ментора", {
         name: "",
         id: 0,
         students: [],
@@ -191,10 +191,50 @@ function onAddMentorClick(){
 function onUpdateMentorClick(e){
     const container = this.closest(".mentorlist-mentor");
     const data = container.dataset.data;
-    onDefaultEdit(renderMentorForm("Редактировать ментора", JSON.parse(data)));
+    onDefaultEdit(renderMentorUpdateForm("Редактировать ментора", JSON.parse(data)));
+    callNativesortable();
 }
 
-function renderMentorForm(title, data){
+//WORK
+function renderMentorFormOneStudent(data){
+    console.log(data);
+    return `
+        <li data-id="${data.id}" draggable="true" class="sortable-item needsclick">${data.name}</li>
+    `;
+}
+
+function renderMentorFormStudents(data){
+    var preferedStudents = [];
+    var preferedStudentsSorted = [];
+    listData.students.forEach(function(student){
+        preferedStudents[student.id] = student;
+    });
+
+    var sortableStudents = "";
+    data.preferedStudents.forEach(function(prefered, id){
+        if(typeof preferedStudents[prefered] != "undefined"){
+            preferedStudentsSorted.push(preferedStudents[prefered]);
+        }
+    });
+    preferedStudents.forEach(function(prefered, id){
+        if(data.preferedStudents.indexOf(id) < 0)
+            preferedStudentsSorted.push(prefered);
+    });
+    preferedStudentsSorted.forEach(function(prefered){
+        sortableStudents += renderMentorFormOneStudent(prefered);
+    })
+
+    return `
+        <div class="studentadd-preferedStudents">
+            <label>Приоритет студентов</label>
+            <br />
+            <ul class="sortable">${sortableStudents}</ul>
+        </div>
+    `;
+}
+
+function renderMentorUpdateForm(title, data){
+    const sortableStudents = renderMentorFormStudents(data);
     return `
         <div class="modal__body">
         <h2>${title}</h2>
@@ -205,6 +245,25 @@ function renderMentorForm(title, data){
         <label for="mentoradd-name__name" class="needsclick">Имя</label>
         <input name="name" type="text" id="mentoradd-name__name" value="${data.name}">
         </div>
+        ${sortableStudents}
+        </form>
+        </div>
+        </div>
+        `;
+}
+
+function renderMentorAddForm(title, data){
+    return `
+        <div class="modal__body">
+        <h2>${title}</h2>
+        <div class="modal__body__fields">
+        <form class="mentoradd">
+        <input type="hidden" name="id" value="${data.id}">
+        <div class="mentoradd-name">
+        <label for="mentoradd-name__name" class="needsclick">Имя</label>
+        <input name="name" type="text" id="mentoradd-name__name" value="${data.name}">
+        </div>
+
         </form>
         </div>
         </div>
@@ -336,6 +395,10 @@ function onUpdateStudentClick(e){
     const container = this.closest(".studentlist-student");
     const data = container.dataset.data;
     onDefaultEdit(renderUpdateStudentForm("Редактировать студента", JSON.parse(data)));
+    callNativesortable();
+}
+
+function callNativesortable(){
     [].forEach.call(document.querySelectorAll('.modal'), function(container){
         [].forEach.call(document.querySelectorAll('.sortable'), function(sortable){
             nativesortable(sortable, {
@@ -460,16 +523,22 @@ function renderStudentFormOneMentor(data){
 
 function renderStudentFormMentors(data){
     var preferedMentors = [];
-    listData.mentors.forEach(function(mentor){
-        preferedMentors[mentor.id] = mentor;
+    var preferedMentorsSorted = [];
+    listData.mentors.forEach(function(student){
+        preferedMentors[student.id] = student;
     });
 
     var sortableMentors = "";
-    data.preferedMentors.forEach(function(prefered){
-        sortableMentors += renderStudentFormOneMentor(preferedMentors[prefered]);
-        preferedMentors.splice(prefered, 1);
+    data.preferedMentors.forEach(function(prefered, id){
+        if(typeof preferedMentors[prefered] != "undefined"){
+            preferedMentorsSorted.push(preferedMentors[prefered]);
+        }
     });
-    preferedMentors.forEach(function(prefered){
+    preferedMentors.forEach(function(prefered, id){
+        if(data.preferedMentors.indexOf(id) < 0)
+            preferedMentorsSorted.push(prefered);
+    });
+    preferedMentorsSorted.forEach(function(prefered){
         sortableMentors += renderStudentFormOneMentor(prefered);
     })
 
@@ -486,7 +555,6 @@ function renderUpdateStudentForm(title, data){
     const studentGroup = renderStudentFormGroups(data);
     const studentTask = renderStudentFormTasks(data);
     const studentTaskResults = renderStudentFormTaskResults(data);
-    //TODO mentors priority
     const studentMentors = renderStudentFormMentors(data);
     return renderStudentForm(title, data, studentGroup + studentTask + studentTaskResults + studentMentors);
 }
