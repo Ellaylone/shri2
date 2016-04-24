@@ -102,6 +102,18 @@ function readyDefaultSubmitData(form){
 
 function onStudentAddSubmit(form){
     var postData = readyDefaultSubmitData(form);
+    var group = form.querySelector("#studentadd-group__group").querySelector("input:checked");
+    if(group != null){
+        group = group.value;
+    } else {
+        group = 0;
+    }
+    if(parseInt(postData.id) == 0){
+        postData.tasks = [];
+        postData.taskResults = [];
+        postData.preferedMentors = [];
+    }
+    postData.group = group;
     if(postData){
         postData = JSON.stringify(postData);
         studentApi.students.save(postData, function(data){
