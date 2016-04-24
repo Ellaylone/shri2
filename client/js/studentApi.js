@@ -134,17 +134,70 @@ var studentApi = (function () {
     });
 
     module("tasks", function(fetch){
+        const students = module("students");
+        var updateStudents;
+        var id;
+        var editCallback;
+        function getStudentsFromData(data){
+            data = JSON.parse(data);
+            updateStudents = data.students;
+            id = data.id;
+            delete data.students;
+            data = JSON.stringify(data);
+            return data;
+        }
+
+        function saveStudents(resolve, reject, data){
+            data.forEach(function(item, i){
+                if(updateStudents.indexOf(item.id) >= 0){
+                    var hasTask = false;
+                    for(var j = 0; j < item.tasks.length; j++){
+                        if(item.tasks[j] == parseInt(id)){
+                            hasTask = true;
+                            break;
+                        }
+                    }
+                    if(!hasTask){
+                        item.tasks.push(parseInt(id));
+                        var studentCallback = function(){
+                            if(i == data.length - 1){
+                                resolve();
+                            }
+                        }
+                        students.save(item, studentCallback);
+                    }
+                }
+            });
+        }
+
+        function setTaskToStudents(editTasksData){
+            if(typeof editTasksData.status != "undefined" && editTasksData.status == "ok"){
+                students.get(function(data){
+                    var studentP = new Promise(
+                        function(resolve, reject){
+                            saveStudents(resolve, reject, data);
+                        }
+                    );
+                    studentP.then(function(){
+                        editCallback(editTasksData);
+                    });
+                });
+            } else {
+                editCallback(editTasksData);
+            }
+        }
+
         return {
             get: function(callback){
                 fetch("getTasks", callback);
             },
             save: function(data, callback){
                 //NOTE создание индивидуальных и групповых заданий
-                //TODO передавать список студентов и добавлять им таск
                 if(data.id == 0){
                     fetch("addTasks", callback, data);
                 } else {
-                    fetch("editTasks", callback, data);
+                    editCallback = callback;
+                    fetch("editTasks", setTaskToStudents, getStudentsFromData(data));
                 }
             }
         }
