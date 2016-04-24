@@ -80,7 +80,7 @@ function saveError(){
 function readyDefaultSubmitData(form){
     var postData = {};
     var error = false;
-    [].forEach.call(form.querySelectorAll("input, textarea, select"), function(field){
+    [].forEach.call(form.querySelectorAll("input, textarea"), function(field){
         if(field.value == "" && field.type != "hidden"){
             if(field.className == ""){
                 field.className = "fielderror";
@@ -102,19 +102,28 @@ function readyDefaultSubmitData(form){
 
 function onStudentAddSubmit(form){
     var postData = readyDefaultSubmitData(form);
-    var group = form.querySelector("#studentadd-group__group").querySelector("input:checked");
-    if(group != null){
-        group = group.value;
-    } else {
-        group = 0;
-    }
-    if(parseInt(postData.id) == 0){
+    if(postData){
+        var group = form.querySelector("#studentadd-group__group").querySelector("input:checked");
+        if(group != null){
+            group = group.value;
+        } else {
+            group = 0;
+        }
         postData.tasks = [];
         postData.taskResults = [];
         postData.preferedMentors = [];
-    }
-    postData.group = group;
-    if(postData){
+        if(parseInt(postData.id) != 0){
+            [].forEach.call(form.querySelector("#studentadd-tasks__tasks").querySelectorAll("option:checked"), function(task){
+                postData.tasks.push(parseInt(task.value));
+            });
+            [].forEach.call(form.querySelectorAll("#studentadd-taskResults__taskResults>div"), function(taskResult){
+                postData.taskResults.push([parseInt(taskResult.dataset.id), parseInt(taskResult.querySelector("option:checked").value)]);
+            });
+            [].forEach.call(form.querySelector(".studentadd-preferedMentors").querySelectorAll("li"), function(student){
+                postData.preferedMentors.push(parseInt(student.dataset.id));
+            })
+        }
+        postData.group = group;
         postData = JSON.stringify(postData);
         studentApi.students.save(postData, function(data){
             if(typeof data.status != "undefined" && data.status == "ok"){
@@ -129,36 +138,37 @@ function onStudentAddSubmit(form){
 function onTaskAddSubmit(form){
     //NOTE формируем список всех пользователей кому выставлен таск
     var postData = readyDefaultSubmitData(form);
-    var students = [];
-    var groups = [];
-    var activeStudents = [];
-    [].forEach.call(form.querySelector("#taskadd-groups__groups").querySelectorAll("input:checked"), function(group){
-        groups.push(parseInt(group.value));
-    });
-
-    [].forEach.call(form.querySelector("#taskadd-students__students").querySelectorAll("input:checked"), function(student){
-        students.push(parseInt(student.value));
-    });
-
-    if(groups.length > 0){
-        listData.students.forEach(function(student){
-            if(groups.indexOf(student.group) >= 0){
-                activeStudents.push(student.id);
-            }
-        })
-    }
-    if(students.length > 0){
-        students.forEach(function(student){
-            if(activeStudents.indexOf(student) < 0){
-                activeStudents.push(student);
-            }
-        })
-    }
-
-    delete postData["taskadd-groups__groups__checkbox"];
-    delete postData["taskadd-students__students__checkbox"]
-    postData.students = activeStudents;
     if(postData){
+        var students = [];
+        var groups = [];
+        var activeStudents = [];
+        [].forEach.call(form.querySelector("#taskadd-groups__groups").querySelectorAll("input:checked"), function(group){
+            groups.push(parseInt(group.value));
+        });
+
+        [].forEach.call(form.querySelector("#taskadd-students__students").querySelectorAll("input:checked"), function(student){
+            students.push(parseInt(student.value));
+        });
+
+        if(groups.length > 0){
+            listData.students.forEach(function(student){
+                if(groups.indexOf(student.group) >= 0){
+                    activeStudents.push(student.id);
+                }
+            })
+        }
+        if(students.length > 0){
+            students.forEach(function(student){
+                if(activeStudents.indexOf(student) < 0){
+                    activeStudents.push(student);
+                }
+            })
+        }
+
+        delete postData["taskadd-groups__groups__checkbox"];
+        delete postData["taskadd-students__students__checkbox"]
+        postData.students = activeStudents;
+
         postData = JSON.stringify(postData);
         studentApi.tasks.save(postData, function(data){
             if(typeof data.status != "undefined" && data.status == "ok"){
@@ -172,27 +182,27 @@ function onTaskAddSubmit(form){
 
 function onMentorAddSubmit(form){
     var postData = readyDefaultSubmitData(form);
-    var preferedStudents = [];
-    if(parseInt(postData.id) != 0){
-        [].forEach.call(form.querySelector(".mentoradd-preferedStudents").querySelectorAll("li"), function(student){
-            preferedStudents.push(parseInt(student.dataset.id));
-        })
-
-        if(postData.students == ""){
-            postData.students = [];
-        } else {
-            postData.students = postData.students.split(",");
-            [].forEach.call(postData.students, function(student, i){
-                postData.students[i] = +postData.students[i];
-            });
-        }
-        postData.preferedStudents = preferedStudents;
-    } else {
-        postData.students = [];
-        postData.preferedStudents = [];
-    }
-
     if(postData){
+        var preferedStudents = [];
+        if(parseInt(postData.id) != 0){
+            [].forEach.call(form.querySelector(".mentoradd-preferedStudents").querySelectorAll("li"), function(student){
+                preferedStudents.push(parseInt(student.dataset.id));
+            })
+
+            if(postData.students == ""){
+                postData.students = [];
+            } else {
+                postData.students = postData.students.split(",");
+                [].forEach.call(postData.students, function(student, i){
+                    postData.students[i] = +postData.students[i];
+                });
+            }
+            postData.preferedStudents = preferedStudents;
+        } else {
+            postData.students = [];
+            postData.preferedStudents = [];
+        }
+
         postData = JSON.stringify(postData);
         studentApi.groups.save(postData, function(data){
             if(typeof data.status != "undefined" && data.status == "ok"){
@@ -476,13 +486,6 @@ function renderAddStudentForm(title, data){
     return renderStudentForm(title, data, renderStudentFormGroups(data));
 }
 
-function renderStudentFormOneTask(data, active){
-    var selected = (active ? "selected" : "");
-    return `
-        <option value="1" ${selected}>Задача 1</option>
-        `;
-}
-
 function renderStudentFormOneGroup(data, active){
     var checked = (active ? "checked" : "");
     return `
@@ -502,6 +505,13 @@ function renderStudentFormGroups(data){
         <div id="studentadd-group__group">${groupRadios}</div>
         </div>
           `;
+}
+
+function renderStudentFormOneTask(data, active){
+    var selected = (active ? "selected" : "");
+    return `
+        <option value="${data.id}" ${selected}>${data.name}</option>
+        `;
 }
 
 function renderStudentFormTasks(data){
