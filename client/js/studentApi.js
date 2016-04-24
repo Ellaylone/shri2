@@ -1,5 +1,6 @@
 var studentApi = (function () {
     var sApi = {};
+    //NOTE инициализация
     sApi.init = function(){
         sApi.students = module("students");
         sApi.groups = module("groups");
@@ -7,6 +8,7 @@ var studentApi = (function () {
         sApi.mentors = module("mentors");
     }
 
+    //NOTE описываем модуль
     var module = (function () {
 
         var modules = {};
@@ -42,6 +44,7 @@ var studentApi = (function () {
 
     })();
 
+    //NOTE занимается получением/отправкой данных
     module("fetch", function(){
         const URL_PATHS = [
             "getStudents", "getMentors", "getGroups", "getTasks",
@@ -102,11 +105,15 @@ var studentApi = (function () {
             get: function(callback){
                 fetch("getStudents", callback);
             },
-            add: function(studentData, callback){
-                fetch("addStudents", callback, studentData);
-            },
-            edit: function(studentData, callback){
-                fetch("editStudents", callback, studentData);
+            save: function(data, callback){
+                //NOTE объединение студентов в группы: при data.group определяет идентификатор группы студента
+                //NOTE оценки выставленные за задания передаются в data.taskResults
+                if(data.id == 0){
+                    //NOTE позволяет добавить студента-участника
+                    fetch("addStudents", callback, data);
+                } else {
+                    fetch("editStudents", callback, data);
+                }
             }
         }
     });
@@ -116,8 +123,12 @@ var studentApi = (function () {
             get: function(callback){
                 fetch("getGroups", callback);
             },
-            add: function(groupData, callback){
-                fetch("addGroups", callback, groupData);
+            save: function(data, callback){
+                if(data.id == 0){
+                    fetch("addGroups", callback, data);
+                } else {
+                    fetch("editGroups", callback, data);
+                }
             }
         }
     });
@@ -127,8 +138,14 @@ var studentApi = (function () {
             get: function(callback){
                 fetch("getTasks", callback);
             },
-            add: function(taskData, callback){
-                fetch("addTasks", callback, taskData);
+            save: function(data, callback){
+                //NOTE создание индивидуальных и групповых заданий
+                //TODO передавать список студентов и добавлять им таск
+                if(data.id == 0){
+                    fetch("addTasks", callback, data);
+                } else {
+                    fetch("editTasks", callback, data);
+                }
             }
         }
     });
@@ -138,8 +155,12 @@ var studentApi = (function () {
             get: function(callback){
                 fetch("getMentors", callback);
             },
-            add: function(mentorData, callback){
-                fetch("addMentors", callback, mentorData);
+            save: function(data, callback){
+                if(data.id == 0){
+                    fetch("addMentors", callback, data);
+                } else {
+                    fetch("editMentors", callback, data);
+                }
             }
         }
     });

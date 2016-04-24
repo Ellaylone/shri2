@@ -1,4 +1,4 @@
-var Modal = function(elem, confirm, toggle){
+var Modal = function(elem){
     this.elem = elem;
     this.body = this.elem.getElementsByClassName("modal__body")[0];
     this.overlay = document.getElementById("overlay");
@@ -9,18 +9,6 @@ var Modal = function(elem, confirm, toggle){
         function(){ that.hide(); },
         false
     );
-    if(typeof confirm !== "undefined"){
-        this.elem.getElementsByClassName("modal__confirm")[0].addEventListener(
-            "click",
-            function(){
-                confirm();
-            },
-            false
-        );
-    }
-    if(typeof toggle !== "undefined"){
-        toggle.addEventListener("click", function(){ that.show(); }, false);
-    }
 }
 
 Modal.prototype.show = function(){
@@ -51,402 +39,9 @@ Modal.prototype.showMessage = function(message, type){
     }
 }
 
-Modal.prototype.loadModal = function(params){
-    this.elem.getElementsByTagName("h2")[0].innerHTML = params.title;
-    this.body.classList.add(params.className);
-    this.unloadModal();
-    var k = -1;
-    if(typeof params.source != "undefined" && typeof params.myId != "undefined"){
-        for(k = 0; k < params.source.length; k++){
-            if(params.source[k].id == parseInt(params.myId)){
-                break;
-            }
-        }
-    }
-    for(var i = 0; i < params.fields.length; i++){
-        var fieldWrap = document.createElement("div");
-        var wrapClass = params.className + "-" + params.fields[i].name;
-        var fieldId = wrapClass + "__" + params.fields[i].name;
-        fieldWrap.classList.add(wrapClass);
-
-        var fieldLabel = document.createElement("label");
-        fieldLabel.setAttribute("for", fieldId);
-        fieldLabel.innerText = params.fields[i].label;
-
-        var field;
-        switch(params.fields[i].type){
-        case "textarea":
-            field = document.createElement("textarea");
-            if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
-                field.value = params.source[k][params.fields[i].name];
-            }
-            break;
-        case "radio":
-        case "checkbox":
-            if(typeof params.fields[i].source != "undefined"){
-                field = document.createElement("div");
-                var activeMultiple;
-                if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
-                    activeMultiple = params.source[k][params.fields[i].name];
-                }
-
-                for(var j = 0; j < params.fields[i].source.length; j++){
-                    var fieldMultiple = document.createElement("input");
-                    fieldMultiple.setAttribute("type", params.fields[i].type);
-                    fieldMultiple.value = params.fields[i].source[j].id;
-                    fieldMultiple.name = fieldId + "__" + params.fields[i].type;
-                    fieldMultiple.id = fieldId + "__" + params.fields[i].type + params.fields[i].source[j].id;
-                    if(typeof activeMultiple == "number" && params.fields[i].source[j].id == activeMultiple){
-                        fieldMultiple.setAttribute("checked", "checked");
-                    }
-
-                    var fieldMultipleLabel = document.createElement("label");
-                    fieldMultipleLabel.setAttribute("for", fieldMultiple.id);
-                    fieldMultipleLabel.innerText = params.fields[i].source[j].name;
-                    fieldMultipleLabel.classList.add("needsclick");
-
-                    field.appendChild(fieldMultiple);
-                    field.appendChild(fieldMultipleLabel);
-                }
-                break;
-            }
-        case "select":
-            if(params.fields[i].name == "taskResults"){
-                field = document.createElement("div");
-                var activeMultiple;
-                if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
-                    activeMultiple = params.source[k][params.fields[i].name];
-                }
-                for(var j = 0; j < params.source[k][params.fields[i].name].length; j++){
-                    var taskInfo;
-                    for(var l = 0; l < params.fields[i].source.length; l++){
-                        if(params.fields[i].source[l].id == params.source[k][params.fields[i].name][j][0]){
-                            taskInfo = params.fields[i].source[l];
-                            break;
-                        }
-                    }
-                    var markWrap = document.createElement("div");
-                    markWrap.dataset.id = params.source[k][params.fields[i].name][j][0];
-
-                    var markLabel = document.createElement("label");
-                    markLabel.innerText = taskInfo.name;
-
-                    var markSelect = document.createElement("select");
-                    for(var mark = 0; mark <= 5; mark++){
-                        var markOption = document.createElement("option");
-                        markOption.value = mark;
-                        markOption.innerHTML = mark;
-
-                        if(parseInt(mark) == params.source[k][params.fields[i].name][j][1]){
-                            markOption.setAttribute("selected", "selected");
-                        }
-
-                        markSelect.appendChild(markOption);
-                    }
-
-                    markWrap.appendChild(markLabel);
-                    markWrap.appendChild(markSelect);
-                    field.appendChild(markWrap);
-                }
-                console.log(activeMultiple);
-                break;
-            } else if(typeof params.fields[i].source != "undefined"){
-                field = document.createElement("select");
-
-                field.setAttribute("multiple", "multiple");
-                field.name = fieldId;
-
-                for(var j = 0; j < params.fields[i].source.length; j++){
-                    var fieldSelect = document.createElement("option");
-                    fieldSelect.value = params.fields[i].source[j].id;
-                    fieldSelect.innerHTML = params.fields[i].source[j].name;
-                    if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
-                        if(params.source[k][params.fields[i].name].indexOf(params.fields[i].source[j].id) >=0){
-                            fieldSelect.setAttribute("selected", "selected");
-                        }
-                    }
-
-                    field.appendChild(fieldSelect);
-                }
-                break;
-            }
-        default:
-            field = document.createElement("input");
-            field.setAttribute("type", params.fields[i].type);
-            if(k >= 0 && typeof params.source[k][params.fields[i].name] != "undefined"){
-                field.value = params.source[k][params.fields[i].name];
-            }
-        }
-        field.id = fieldId;
-
-        fieldWrap.appendChild(fieldLabel);
-        fieldWrap.appendChild(field);
-        this.body.appendChild(fieldWrap);
-    }
-}
-
 Modal.prototype.unloadModal = function(){
     this.body.innerHTML = "";
 }
-
-var listData = {
-    students: false,
-    groups: false,
-    tasks: false,
-    mentors: false
-}
-
-function formStudentList(data){
-    if(typeof data.error != "undefined"){
-        console.log(data.error);
-    } else {
-        var studentlist = document.getElementsByClassName("studentlist")[0];
-        listData.students = data;
-        for(var i = 0; i < data.length; i++){
-            var student = document.createElement("li");
-            student.classList.add("studentlist-student");
-            student.classList.add("defaultlist-elem");
-            student.classList.add("needsclick");
-            student.dataset.id = data[i].id;
-            student.dataset.groupId = data[i].group;
-
-            var studentText = document.createTextNode(data[i].name);
-            student.appendChild(studentText);
-
-            studentlist.appendChild(student);
-        }
-    }
-}
-
-studentApi.students.get(formStudentList);
-
-function formGroupsList(data){
-    if(typeof data.error != "undefined"){
-        console.log(data.error);
-    } else {
-        listData.groups = data;
-        var grouplist = document.getElementsByClassName("grouplist")[0];
-        var students = document.getElementsByClassName("studentlist")[0].getElementsByClassName("studentlist-student");
-        for(var i = 0; i < data.length; i++){
-            var group = document.createElement("li");
-            group.classList.add("grouplist-group");
-            group.classList.add("defaultlist-elem");
-            group.classList.add("needsclick");
-            group.dataset.id = data[i].id;
-            var borderStyle = "8px solid rgba(" + parseInt(Math.random()*255) + ", " + parseInt(Math.random()*255) + ", " +  parseInt(Math.random()*255) + ", 1)";
-            group.style["border-left"] = borderStyle;
-
-            var groupText = document.createTextNode(data[i].name);
-            group.appendChild(groupText);
-
-            grouplist.appendChild(group);
-            for(var j = 0; j < students.length; j++){
-                if(students[j].dataset.groupId == data[i].id){
-                    students[j].style["border-left"] = borderStyle;
-                }
-            }
-        }
-    }
-}
-
-studentApi.groups.get(formGroupsList);
-
-function formTaskList(data){
-    if(typeof data.error != "undefined"){
-        console.log(data.error);
-    } else {
-        listData.tasks = data;
-        var tasklist = document.getElementsByClassName("tasklist")[0];
-        for(var i = 0; i < data.length; i++){
-            var task = document.createElement("li");
-            task.classList.add("tasklist-task");
-            task.classList.add("defaultlist-elem");
-            task.classList.add("needsclick");
-            task.dataset.id = data[i].id;
-
-            var taskText = document.createTextNode(data[i].name);
-            task.appendChild(taskText);
-
-            tasklist.appendChild(task);
-        }
-    }
-}
-studentApi.tasks.get(formTaskList);
-
-function formMentorsList(data){
-    if(typeof data.error != "undefined"){
-        console.log(data.error);
-    } else {
-        listData.mentors = data;
-        var mentorlist = document.getElementsByClassName("mentorlist")[0];
-        for(var i = 0; i < data.length; i++){
-            var mentor = document.createElement("li");
-            mentor.classList.add("mentorlist-mentor");
-            mentor.classList.add("defaultlist-elem");
-            mentor.classList.add("needsclick");
-            mentor.dataset.id = data[i].id;
-
-            var mentorText = document.createTextNode(data[i].name);
-            mentor.appendChild(mentorText);
-
-            mentorlist.appendChild(mentor);
-        }
-    }
-}
-
-studentApi.mentors.get(formMentorsList);
-
-var mainModal = new Modal(
-    document.getElementById("mainModal")
-);
-
-document.getElementsByClassName("studentadd-button")[0].addEventListener(
-    "click",
-    function(){
-        mainModal.loadModal({
-            title: "Добавить студента",
-            className: "studentadd",
-            fields: [
-                {
-                    name: "name",
-                    label: "Имя",
-                    type: "text"
-                },
-                {
-                    name: "group",
-                    label: "Команда",
-                    type: "radio",
-                    source: listData.groups
-                }
-            ]
-        });
-        mainModal.show()
-    },
-    false
-);
-
-document.getElementsByClassName("studentlist")[0].addEventListener(
-    "click",
-    function(e){
-        if(e.target.classList.contains("studentlist-student")){
-            mainModal.loadModal({
-                title: "Редактировать студента",
-                className: "studentadd",
-                source: listData.students,
-                myId: e.target.dataset.id,
-                fields: [
-                    {
-                        name: "name",
-                        label: "Имя",
-                        type: "text"
-                    },
-                    {
-                        name: "group",
-                        label: "Команда",
-                        type: "radio",
-                        source: listData.groups
-                    },
-                    {
-                        name: "tasks",
-                        label: "Задания",
-                        type: "select",
-                        source: listData.tasks
-                    },
-                    {
-                        name: "taskResults",
-                        label: "Оценки",
-                        type: "select",
-                        source: listData.tasks
-                    },
-                ]
-            });
-            mainModal.show()
-        }
-    },
-    false
-);
-
-document.getElementsByClassName("groupadd-button")[0].addEventListener(
-    "click",
-    function(){
-        mainModal.loadModal({
-            title: "Добавить группу",
-            className: "groupadd",
-            fields: [
-                {
-                    name: "name",
-                    label: "Название",
-                    type: "text"
-                }
-            ]
-        });
-        mainModal.show()
-    },
-    false
-);
-
-document.getElementsByClassName("taskadd-button")[0].addEventListener(
-    "click",
-    function(){
-        mainModal.loadModal({
-            title: "Добавить задачу",
-            className: "taskadd",
-            fields: [
-                {
-                    name: "name",
-                    label: "Название",
-                    type: "text"
-                },
-                {
-                    name: "description",
-                    label: "Описание",
-                    type: "textarea"
-                },
-                {
-                    name: "groups",
-                    label: "Группа",
-                    type: "checkbox",
-                    source: listData.groups
-                },
-                {
-                    name: "students",
-                    label: "Студенты",
-                    type: "checkbox",
-                    source: listData.students
-                }
-            ]
-        });
-        mainModal.show()
-    },
-    false
-);
-
-document.getElementsByClassName("mentoradd-button")[0].addEventListener(
-    "click",
-    function(){
-        mainModal.loadModal({
-            title: "Добавить ментора",
-            className: "mentoradd",
-            fields: [
-                {
-                    name: "name",
-                    label: "Имя",
-                    type: "text"
-                }
-            ]
-        });
-        mainModal.show()
-    },
-    false
-);
-
-document.getElementById("overlay").addEventListener("click", function(){
-    mainModal.hide();
-}, false);
-
-document.getElementById("overlay").addEventListener("click", function(){
-    mainModal.hide();
-}, false);
 
 var saveSuccessMessage = "Успешно сохранено";
 var saveServerError = "Возникла ошибка при сохранении";
@@ -492,3 +87,549 @@ function addGroup(){
         groupAddModal.showMessage("Нужно ввести название", "error");
     }
 }
+
+function onModalConfirmClick(e){
+    var form = e.target.parentNode.getElementsByTagName("form")[0];
+
+    switch(form.className){
+    case "studentadd":
+        onStudentAddSubmit(form);
+        break;
+    case "groupadd":
+        onGroupAddSubmit(form);
+        break;
+    case "taskadd":
+        onTaskAddSubmit(form);
+        break;
+    case "mentoradd":
+        onMentorAddSubmit(form);
+        break;
+    default:
+        break;
+    }
+    console.log();
+}
+
+function readyDefaultSubmitData(form){
+    var postData = {};
+    var error = false;
+    [].forEach.call(form.querySelectorAll("input, textarea, select"), function(field){
+        if(field.value == ""){
+            if(field.className == ""){
+                field.className = "fielderror";
+            } else {
+                field.classList.add("fielderror");
+            }
+            error = true;
+        } else {
+            field.classList.remove("fielderror");
+        }
+        postData[field.name] = field.value;
+    });
+    if(error){
+        return false;
+    } else {
+        return postData;
+    }
+}
+
+function onStudentAddSubmit(form){
+    var postData = readyDefaultSubmitData(form);
+    if(postData){
+        postData = JSON.stringify(postData);
+        studentApi.students.save(postData, function(data){
+            console.log(data);
+        });
+    }
+}
+
+function onTaskAddSubmit(form){
+    var postData = readyDefaultSubmitData(form);
+    if(postData){
+        postData = JSON.stringify(postData);
+        studentApi.tasks.save(postData, function(data){
+            console.log(data);
+        });
+    }
+}
+
+function onMentorAddSubmit(form){
+    var postData = readyDefaultSubmitData(form);
+    if(postData){
+        postData = JSON.stringify(postData);
+        studentApi.groups.save(postData, function(data){
+            console.log(data);
+        });
+    }
+}
+
+function onGroupAddSubmit(form){
+    var postData = readyDefaultSubmitData(form);
+    if(postData){
+        postData = JSON.stringify(postData);
+        studentApi.groups.save(postData, function(data){
+            console.log(data);
+        });
+    }
+}
+
+//NOTE add and edit in modal
+function onDefaultEdit(modalHTML){
+    mainModal.body.innerHTML = modalHTML;
+    mainModal.show();
+}
+
+function onAddMentorClick(){
+    onDefaultEdit(renderMentorForm("Добавить ментора", {
+        name: "",
+        id: 0,
+        students: [],
+        preferedStudents: []
+    }));
+}
+
+function onUpdateMentorClick(e){
+    const container = this.closest(".mentorlist-mentor");
+    const data = container.dataset.data;
+    onDefaultEdit(renderMentorForm("Редактировать ментора", JSON.parse(data)));
+}
+
+function renderMentorForm(title, data){
+    return `
+        <div class="modal__body">
+        <h2>${title}</h2>
+        <div class="modal__body__fields">
+        <form class="mentoradd">
+        <input type="hidden" name="id" value="${data.id}">
+        <div class="mentoradd-name">
+        <label for="mentoradd-name__name" class="needsclick">Имя</label>
+        <input name="name" type="text" id="mentoradd-name__name" value="${data.name}">
+        </div>
+        </form>
+        </div>
+        </div>
+        `;
+}
+
+function onAddGroupClick(){
+    onDefaultEdit(renderGroupForm("Добавить группу", {
+        name: "",
+        id: 0
+    }));
+}
+
+function onUpdateGroupClick(e){
+    const container = this.closest(".grouplist-group");
+    const data = container.dataset.data;
+    onDefaultEdit(renderGroupForm("Редактировать группу", JSON.parse(data)));
+}
+
+function renderGroupForm(title, data){
+    return `
+        <div class="modal__body">
+        <h2>${title}</h2>
+        <div class="modal__body__fields">
+        <form class="groupadd">
+        <input type="hidden" name="id" value="${data.id}">
+        <div class="groupadd-name">
+        <label for="groupadd-name__name" class="needsclick">Имя</label>
+        <input name="name" type="text" id="groupadd-name__name" value="${data.name}">
+        </div>
+        </form>
+        </div>
+        </div>
+        `;
+}
+
+function onAddTaskClick(){
+    onDefaultEdit(renderTaskForm("Добавить задачу", {
+        name: "",
+        id: 0,
+        description: ""
+    }));
+}
+
+function onUpdateTaskClick(e){
+    const container = this.closest(".tasklist-task");
+    const data = container.dataset.data;
+    onDefaultEdit(renderTaskForm("Редактировать задачу", JSON.parse(data)));
+}
+
+function renderTaskFormOneGroup(data, active){
+    var checked = (active ? "checked" : "");
+    return `
+        <input ${checked} type="checkbox" value="${data.id}" name="taskadd-groups__groups__checkbox" id="taskadd-groups__groups__checkbox${data.id}">
+        <label for="taskadd-groups__groups__checkbox${data.id}" class="needsclick">${data.name}</label>
+        `;
+}
+
+function renderTaskFormGroups(data){
+    var groupCheckboxes = "";
+    [].forEach.call(listData.groups,function(group){
+        groupCheckboxes += renderTaskFormOneGroup(group, (group.tasks.indexOf(data.id) >= 0 ? true : false));
+    });
+    return `
+        <div class="taskadd-groups">
+        <label for="taskadd-groups__group">Группа</label>
+        <div id="taskadd-groups__groups">${groupCheckboxes}</div>
+        </div>
+        `;
+}
+
+function renderTaskFormOneStudent(data, active){
+    var checked = (active ? "checked" : "");
+    return `
+        <input ${checked} type="checkbox" value="${data.id}" name="taskadd-students__students__checkbox" id="taskadd-students__students__checkbox${data.id}">
+        <label for="taskadd-students__students__checkbox${data.id}" class="needsclick">${data.name}</label>
+        `;
+}
+
+function renderTaskFormStudents(data){
+    var studentCheckboxes = "";
+    [].forEach.call(listData.students,function(student){
+        studentCheckboxes += renderTaskFormOneStudent(student, (student.tasks.indexOf(data.id) >= 0 ? true : false));
+    });
+    return `
+        <div class="taskadd-students">
+        <label for="taskadd-students__student">Студенты</label>
+        <div id="taskadd-students__students">${studentCheckboxes}</div>
+        </div>
+        `;
+}
+
+function renderTaskForm(title, data){
+    const taskGroup = renderTaskFormGroups(data);
+    const taskStudents = renderTaskFormStudents(data);
+    return `
+        <div class="modal__body">
+        <h2>${title}</h2>
+        <div class="modal__body__fields">
+        <form class="taskadd">
+        <input type="hidden" name="id" value="${data.id}">
+        <div class="taskadd-name">
+        <label for="taskadd-name__name" class="needsclick">Имя</label>
+        <input name="name" type="text" id="taskadd-name__name" value="${data.name}">
+        </div>
+        <div class="taskadd-description">
+        <label for="taskadd-description__description" class="needsclick">Описание</label>
+        <textarea name="description" id="taskadd-description__description" rows="5" cols="40">${data.description}</textarea>
+        </div>
+        ${taskGroup}
+        ${taskStudents}
+        </form>
+        </div>
+        </div>
+        `;
+}
+
+function onAddStudentClick(){
+    onDefaultEdit(renderAddStudentForm("Добавить студента", {
+        name: "",
+        id: 0,
+        group: 0,
+        tasks: [],
+        taskResults: []
+    }));
+}
+
+function onUpdateStudentClick(e){
+    const container = this.closest(".studentlist-student");
+    const data = container.dataset.data;
+    onDefaultEdit(renderUpdateStudentForm("Редактировать студента", JSON.parse(data)));
+}
+
+function renderStudentForm(title, data, formHTML){
+    return `
+        <div class="modal__body">
+        <h2>${title}</h2>
+        <div class="modal__body__fields">
+        <form class="studentadd">
+        <input type="hidden" name="id" value="${data.id}">
+        <div class="studentadd-name">
+        <label for="studentadd-name__name" class="needsclick">Имя</label>
+        <input name="name" type="text" id="studentadd-name__name" value="${data.name}">
+        </div>
+        ${formHTML}
+        </form>
+        </div>
+        </div>
+        `;
+}
+
+function renderAddStudentForm(title, data){
+    return renderStudentForm(title, data, renderStudentFormGroups(data));
+}
+
+function renderStudentFormOneTask(data, active){
+    var selected = (active ? "selected" : "");
+    return `
+        <option value="1" ${selected}>Задача 1</option>
+        `;
+}
+
+function renderStudentFormOneGroup(data, active){
+    var checked = (active ? "checked" : "");
+    return `
+        <input type="radio" ${checked} value="${data.id}" name="group" id="studentadd-group__group__radio${data.id}">
+        <label for="studentadd-group__group__radio${data.id}" class="needsclick">${data.name}</label>
+        `;
+}
+
+function renderStudentFormGroups(data){
+    var groupRadios = "";
+    [].forEach.call(listData.groups,function(group){
+        groupRadios += renderStudentFormOneGroup(group, (group.id == data.group ? true : false));
+    });
+    return `
+        <div class="studentadd-group">
+        <label for="studentadd-group__group">Команда</label>
+        <div id="studentadd-group__group">${groupRadios}</div>
+        </div>
+          `;
+}
+
+function renderStudentFormTasks(data){
+    var taskOptions = "";
+    [].forEach.call(listData.tasks,function(task){
+        taskOptions += renderStudentFormOneTask(task, (data.tasks.indexOf(task.id) >= 0 ? true : false));
+    });
+    return `
+        <div class="studentadd-task">
+        <label for="studentadd-task__task">Задания</label>
+        <select multiple="multiple" name="tasks" id="studentadd-tasks__tasks">${taskOptions}</select>
+        </div>
+        `;
+}
+
+function renderStudentFormOneTaskResult(data, active){
+    var tastResultOptions = ""
+    var marksArray = [0,1,2,3,4,5];
+    marksArray.forEach(function(mark){
+        var markActive = (mark == active ? "selected" : "");
+        tastResultOptions += `<option value="${mark}" ${markActive}>${mark}</option>`;
+    })
+    return `
+        <div data-id="${data.id}">
+        <label>${data.name}</label>
+        <select>
+        ${tastResultOptions}
+        </select>
+        </div>
+        `;
+}
+
+function renderStudentFormTaskResults(data){
+    var taskResultSelect = "";
+    [].forEach.call(data.taskResults,function(task){
+        var selectedTask = false;
+        for(var i = 0; i < listData.tasks.length; i++){
+            if(listData.tasks[i].id == task[0]){
+                selectedTask = listData.tasks[i];
+                break;
+            }
+        }
+        if(selectedTask){
+            taskResultSelect += renderStudentFormOneTaskResult(selectedTask, task[1]);
+        }
+    });
+
+    return `
+        <div class="studentadd-taskResults">
+        <label for="studentadd-taskResults__taskResults">Оценки</label>
+        <div id="studentadd-taskResults__taskResults">
+        ${taskResultSelect}
+        </div>
+        </div>
+        `;
+}
+
+function renderUpdateStudentForm(title, data){
+    const studentGroup = renderStudentFormGroups(data);
+    const studentTask = renderStudentFormTasks(data);
+    const studentTaskResults = renderStudentFormTaskResults(data);
+    //TODO mentors priority
+    const studentMentors = `
+          <div class="studentadd-preferedMentors"><label for="studentadd-preferedMentors__preferedMentors">Приоритет менторов</label><div id="studentadd-preferedMentors__preferedMentors"></div></div>
+    `;
+    return renderStudentForm(title, data, studentGroup + studentTask + studentTaskResults + studentMentors);
+}
+
+//NOTE lists of data
+function renderGroup(group){
+    var borderLeft = "8px solid rgba(" + parseInt(Math.random()*255) + ", " + parseInt(Math.random()*255) + ", " +  parseInt(Math.random()*255) + ", 1)";
+    var groupStudents = document.querySelectorAll(".studentlist-student[data-group-id='" + group.id + "']");
+    [].forEach.call(
+        groupStudents,
+        function(container){
+            container.style["border-left"] = borderLeft;
+        }
+    );
+
+    return `
+        <li class="grouplist-group defaultlist-elem needsclick" style="border-left: ${borderLeft}" data-data='${JSON.stringify(group)}'} data-id='${group.id}'>${group.name}</li>
+    `;
+}
+
+function renderStudent(student){
+    return `
+        <li class="studentlist-student defaultlist-elem needsclick" data-data='${JSON.stringify(student)}' data-id='${student.id}' data-group-id='${student.group}'>${student.name}</li>
+        `;
+}
+
+function renderTask(task){
+    return defaultRender(task, "tasklist-task");
+}
+
+function renderMentor(mentor){
+    return defaultRender(mentor, "mentorlist-mentor");
+}
+
+function defaultRender(data, className){
+    return `
+        <li class="${className} defaultlist-elem needsclick" data-data='${JSON.stringify(data)}'} data-id='${data.id}'>${data.name}</li>
+    `;
+}
+
+var listData = {
+    students: false,
+    groups: false,
+    tasks: false,
+    mentors: false
+}
+
+function updateDefaultList(data, render, listClass){
+    if(typeof data.error != "undefined"){
+        console.log(data.error);
+    } else {
+        const listHTML = data.map(render).join('');
+
+        var listWrap = document.getElementsByClassName(listClass);
+
+        [].forEach.call(
+            listWrap,
+            function(container){
+                container.innerHTML = listHTML;
+            }
+        );
+    }
+}
+
+function updateStudentsList(data){
+    listData.students = data;
+    updateDefaultList(data, renderStudent, "studentlist");
+}
+
+function updateTasksList(data){
+    listData.tasks = data;
+    updateDefaultList(data, renderTask, "tasklist");
+}
+
+function updateGroupsList(data){
+    listData.groups = data;
+    updateDefaultList(data, renderGroup, "grouplist");
+}
+
+function updateMentorsList(data){
+    listData.mentors = data;
+    updateDefaultList(data, renderMentor, "mentorlist");
+}
+
+function updateAllLists(){
+    studentApi.students.get(updateStudentsList);
+    studentApi.groups.get(updateGroupsList);
+    studentApi.tasks.get(updateTasksList);
+    studentApi.mentors.get(updateMentorsList);
+}
+
+function delegate(containers, selector, event, handler) {
+    [].forEach.call(containers, function(container){
+        container.addEventListener(event, function (e) {
+            if (e.target.matches(selector)) {
+                handler.apply(e.target, arguments);
+            }
+        });
+    });
+}
+
+//NOTE init
+var mainModal = new Modal(
+    document.getElementById("mainModal")
+);
+
+document.addEventListener('DOMContentLoaded', function(){
+    document.getElementById("overlay").addEventListener("click", function(){
+        mainModal.hide();
+    }, false);
+
+    [].forEach.call(document.querySelectorAll(".mentoradd-button"), function(selector){
+        selector.addEventListener(
+            "click",
+            onAddMentorClick
+        )
+    });
+
+    delegate(
+        document.querySelectorAll('.mentorlist'),
+        '.mentorlist-mentor',
+        'click',
+        onUpdateMentorClick
+    );
+
+    [].forEach.call(document.querySelectorAll(".groupadd-button"), function(selector){
+        selector.addEventListener(
+            "click",
+            onAddGroupClick
+        )
+    });
+
+    delegate(
+        document.querySelectorAll('.grouplist'),
+        '.grouplist-group',
+        'click',
+        onUpdateGroupClick
+    );
+
+    [].forEach.call(document.querySelectorAll(".taskadd-button"), function(selector){
+        selector.addEventListener(
+            "click",
+            onAddTaskClick
+        )
+    });
+
+    delegate(
+        document.querySelectorAll('.tasklist'),
+        '.tasklist-task',
+        'click',
+        onUpdateTaskClick
+    );
+
+    [].forEach.call(document.querySelectorAll(".studentadd-button"), function(selector){
+        selector.addEventListener(
+            "click",
+            onAddStudentClick
+        )
+    });
+
+    delegate(
+        document.querySelectorAll('.studentlist'),
+        '.studentlist-student',
+        'click',
+        onUpdateStudentClick
+    );
+
+    delegate(
+        document.querySelectorAll('.studentlist'),
+        '.studentlist-student',
+        'click',
+        onUpdateStudentClick
+    );
+
+    delegate(
+        document.querySelectorAll('.modal'),
+        '.modal__confirm',
+        'click',
+        onModalConfirmClick
+    );
+
+    updateAllLists();
+});

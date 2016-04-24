@@ -1,5 +1,6 @@
 var express = require('express');
 var path = require('path');
+var bodyParser = require('body-parser');
 var app = express();
 
 app.use(express.static(path.normalize(__dirname + '/../client')));
@@ -24,7 +25,24 @@ function apiGet(req, res){
     }
 }
 
-app.all('/api/*', apiGet);
+function apiPost(req, res){
+    res.send({status: "ok"});
+}
+
+
+
+app.all('/api/*', function(req, res){
+    switch(req.method){
+    case "GET":
+        apiGet(req, res);
+        break;
+    case "POST":
+        apiPost(req, res);
+        break;
+    default:
+        break;
+    }
+});
 
 app.listen(3000, function () {
     console.log('Shri2 listening on port 3000!');
