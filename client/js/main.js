@@ -161,19 +161,25 @@ function onTaskAddSubmit(form){
 function onMentorAddSubmit(form){
     var postData = readyDefaultSubmitData(form);
     var preferedStudents = [];
-    [].forEach.call(form.querySelector(".mentoradd-preferedStudents").querySelectorAll("li"), function(student){
-        preferedStudents.push(parseInt(student.dataset.id));
-    })
+    if(parseInt(postData.id) != 0){
+        [].forEach.call(form.querySelector(".mentoradd-preferedStudents").querySelectorAll("li"), function(student){
+            preferedStudents.push(parseInt(student.dataset.id));
+        })
 
-    if(postData.students == ""){
-        postData.students = [];
+        if(postData.students == ""){
+            postData.students = [];
+        } else {
+            postData.students = postData.students.split(",");
+            [].forEach.call(postData.students, function(student, i){
+                postData.students[i] = +postData.students[i];
+            });
+        }
+        postData.preferedStudents = preferedStudents;
     } else {
-        postData.students = postData.students.split(",");
-        [].forEach.call(postData.students, function(student, i){
-            postData.students[i] = +postData.students[i];
-        });
+        postData.students = [];
+        postData.preferedStudents = [];
     }
-    postData.preferedStudents = preferedStudents;
+
     if(postData){
         postData = JSON.stringify(postData);
         studentApi.groups.save(postData, function(data){
