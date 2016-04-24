@@ -336,6 +336,15 @@ function onUpdateStudentClick(e){
     const container = this.closest(".studentlist-student");
     const data = container.dataset.data;
     onDefaultEdit(renderUpdateStudentForm("Редактировать студента", JSON.parse(data)));
+    [].forEach.call(document.querySelectorAll('.modal'), function(container){
+        [].forEach.call(document.querySelectorAll('.sortable'), function(sortable){
+            nativesortable(sortable, {
+            change: function() {
+
+            }
+        });
+        });
+    })
 }
 
 function renderStudentForm(title, data, formHTML){
@@ -443,14 +452,42 @@ function renderStudentFormTaskResults(data){
         `;
 }
 
+function renderStudentFormOneMentor(data){
+    return `
+        <li data-id="${data.id}" draggable="true" class="sortable-item needsclick">${data.name}</li>
+    `;
+}
+
+function renderStudentFormMentors(data){
+    var preferedMentors = [];
+    listData.mentors.forEach(function(mentor){
+        preferedMentors[mentor.id] = mentor;
+    });
+
+    var sortableMentors = "";
+    data.preferedMentors.forEach(function(prefered){
+        sortableMentors += renderStudentFormOneMentor(preferedMentors[prefered]);
+        preferedMentors.splice(prefered, 1);
+    });
+    preferedMentors.forEach(function(prefered){
+        sortableMentors += renderStudentFormOneMentor(prefered);
+    })
+
+    return `
+        <div class="studentadd-preferedMentors">
+            <label>Приоритет менторов</label>
+            <br />
+            <ul class="sortable">${sortableMentors}</ul>
+        </div>
+    `;
+}
+
 function renderUpdateStudentForm(title, data){
     const studentGroup = renderStudentFormGroups(data);
     const studentTask = renderStudentFormTasks(data);
     const studentTaskResults = renderStudentFormTaskResults(data);
     //TODO mentors priority
-    const studentMentors = `
-          <div class="studentadd-preferedMentors"><label for="studentadd-preferedMentors__preferedMentors">Приоритет менторов</label><div id="studentadd-preferedMentors__preferedMentors"></div></div>
-    `;
+    const studentMentors = renderStudentFormMentors(data);
     return renderStudentForm(title, data, studentGroup + studentTask + studentTaskResults + studentMentors);
 }
 
@@ -609,13 +646,6 @@ document.addEventListener('DOMContentLoaded', function(){
             onAddStudentClick
         )
     });
-
-    delegate(
-        document.querySelectorAll('.studentlist'),
-        '.studentlist-student',
-        'click',
-        onUpdateStudentClick
-    );
 
     delegate(
         document.querySelectorAll('.studentlist'),

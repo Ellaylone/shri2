@@ -165,6 +165,15 @@ var studentApi = (function () {
         }
     });
 
+    module("prefered", function(students, mentors){
+        return {
+            //TODO sort prefered
+            //NOTE распределение менторов и студентов по приоритету
+            sort: function(callback){
+            }
+        }
+    });
+
     sApi.init();
     return sApi;
 }());
