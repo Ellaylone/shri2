@@ -2,15 +2,15 @@
     "name": "Ментор 1",
     "id": 1,
     "students": [0,3],
-    "preferedStudents": [1,2]
+    "preferedStudents": [1,2,3]
 }, {
     "name": "Ментор 2",
     "id": 2,
     "students": [],
-    "preferedStudents": [2,3]
+    "preferedStudents": [2,3,1]
 }, {
     "name": "Ментор 3",
     "id": 3,
     "students": [2],
-    "preferedStudents": [2]
+    "preferedStudents": [2,1,3]
 }]

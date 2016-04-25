@@ -6,6 +6,7 @@ var studentApi = (function () {
         sApi.groups = module("groups");
         sApi.tasks = module("tasks");
         sApi.mentors = module("mentors");
+        sApi.prefered = module("prefered");
     }
 
     //NOTE описываем модуль
@@ -49,8 +50,7 @@ var studentApi = (function () {
         const URL_PATHS = [
             "getStudents", "getMentors", "getGroups", "getTasks",
             "addStudents", "addMentors", "addGroups", "addTasks",
-            "editStudents", "editMentors", "editGroups", "editTasks",
-            "removeStudents", "removeMentors", "removeGroups", "removeTasks"
+            "editStudents", "editMentors", "editGroups", "editTasks"
         ]
         const URL_PREFIX = "/api/";
 
@@ -218,11 +218,88 @@ var studentApi = (function () {
         }
     });
 
-    module("prefered", function(students, mentors){
+    //NOTE распределение менторов и студентов по приоритету
+    module("prefered", function(students){
+        var mentors = module("mentors");
+        var sortCallback, maxStudents, total;
+        var S = [], M = [], SFinal = [], MFinal = [], SData = [], MData = [];
+        function controlSort(){
+            var mentorsP = new Promise(
+                    function(resolve, reject){
+                        mentors.get(resolve);
+                    }
+                );
+
+            var studentsP = new Promise(
+                    function(resolve, reject){
+                        students.get(resolve);
+                    }
+                );
+            Promise.all([mentorsP, studentsP]).then(function(values){
+                var ratio = values[1].length / values[0].length;
+                maxStudents = parseInt(ratio);
+                if(maxStudents != ratio){
+                    maxStudents++;
+                }
+                formWorkArrays(values);
+                spreadStudents();
+            });
+        }
+        function formWorkArrays(values){
+            total = 0;
+            values[0].forEach(function(item){
+                M[item.id] = item.preferedStudents;
+                MFinal[item.id] = [];
+                MData[item.id] = item;
+            });
+            values[1].forEach(function(item){
+                S[item.id] = item.preferedMentors;
+                SFinal[item.id] = 0;
+                SData[item.id] = item;
+            });
+        }
+        function spreadStudents(){
+            for(var i = 0; i <= maxStudents; i++){
+                S.forEach(function(s, si){
+                    if(s.length){
+                        M.forEach(function(m, mi){
+                            if(MFinal[mi].length < maxStudents && s[0] == m[0]){
+                                MFinal[mi].push(si);
+                                SFinal[si] = mi;
+                                if(MFinal[mi].length >= maxStudents){
+                                    removeMentor(mi);
+                                    saveMentor(mi);
+                                }
+                                removeStudent(si);
+                                S[si] = [];
+                            }
+                        });
+                    }
+                });
+            }
+        }
+        function removeStudent(si){
+            M.forEach(function(m){
+                if(m.length && m.indexOf(si) >= 0){
+                    m.splice(m.indexOf(si), 1);
+                }
+            });
+        }
+        function removeMentor(mi){
+            S.forEach(function(s){
+                if(s.length && s.indexOf(mi) >= 0){
+                    s.splice(s.indexOf(mi), 1);
+                }
+            });
+        }
+        function saveMentor(mi){
+            MData[mi].students = MFinal[mi];
+            mentors.save(MData[mi], () => {});
+        }
         return {
-            //TODO sort prefered
-            //NOTE распределение менторов и студентов по приоритету
             sort: function(callback){
+                sortCallback = callback;
+                controlSort();
             }
         }
     });
