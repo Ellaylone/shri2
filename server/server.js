@@ -80,14 +80,13 @@ function apiPost(req, res){
         }
         if(req.body.id == 0){
             //NOTE add new
-            apiToPost[clearUrl].add(data).then(() => res.send({status: "ok"}));
+            apiToPost[clearUrl].add(data).then((result) => res.send({status: "ok", id: result.id}));
         } else {
             //NOTE edit existing
             const dataId = Number(req.body.id);
             data.id = dataId;
-            apiToPost[clearUrl].update(data).then(() => res.send({status: "ok"}));
+            apiToPost[clearUrl].update(data).then((result) => res.send({status: "ok", id: result.id}));
         }
-        ;
     } else {
         res.sendStatus(404);
     }

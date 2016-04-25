@@ -141,6 +141,7 @@ var studentApi = (function () {
         }
 
         function saveStudents(resolve, reject, data){
+            var promises = [];
             data.forEach(function(item, i){
                 if(updateStudents.indexOf(item.id) >= 0){
                     var hasTask = false;
@@ -152,18 +153,35 @@ var studentApi = (function () {
                     }
                     if(!hasTask){
                         item.tasks.push(parseInt(id));
-                        var studentCallback = function(){
-                            if(i == data.length - 1){
-                                resolve();
-                            }
+                        promises.push(new Promise(
+                                function(resolve, reject){
+                                    students.save(JSON.stringify(item), function(){resolve();});
+                                }
+                            ));
+                    }
+                } else {
+                    var hasTask = false;
+                    for(var j = 0; j < item.tasks.length; j++){
+                        if(item.tasks[j] == parseInt(id)){
+                            hasTask = true;
+                            break;
                         }
-                        students.save(item, studentCallback);
+                    }
+                    if(hasTask){
+                        item.tasks.splice(j, 1);
+                        promises.push(new Promise(
+                                function(resolve, reject){
+                                    students.save(JSON.stringify(item), function(){resolve();});
+                                }
+                            ));
                     }
                 }
             });
+            Promise.all(promises).then(resolve());
         }
 
         function setTaskToStudents(editTasksData){
+            id = editTasksData.id;
             if(typeof editTasksData.status != "undefined" && editTasksData.status == "ok"){
                 students.get(function(data){
                     var studentP = new Promise(
@@ -187,12 +205,8 @@ var studentApi = (function () {
             save: function(data, callback){
                 //NOTE создание индивидуальных и групповых заданий
                 tempData = JSON.parse(data);
-                if(tempData.id == 0){
-                    fetch("addTasks", callback, data);
-                } else {
-                    editCallback = callback;
-                    fetch("editTasks", setTaskToStudents, getStudentsFromData(tempData));
-                }
+                editCallback = callback;
+                fetch("addTasks", setTaskToStudents, getStudentsFromData(tempData));
             }
         }
     });

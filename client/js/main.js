@@ -190,6 +190,10 @@ function onTaskAddSubmit(form){
                                 resolve();
                             });
                         }).then(function(){
+                            showPrefered();
+                            listData.groups.forEach(function(group){
+                                updateStudentsGroupMark(group.id, document.querySelector(".grouplist-group[data-id='" + group.id + "']").style["border-left"]);    
+                            });
                             studentApi.tasks.get(updateTasksList);        
                         });
                 });
