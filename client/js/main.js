@@ -452,6 +452,10 @@ function onUpdateStudentClick(e){
     callNativesortable();
 }
 
+function onSortPreferedClick(e){
+    updatePreferedSorting();
+}
+
 function callNativesortable(){
     [].forEach.call(document.querySelectorAll('.modal'), function(container){
         [].forEach.call(document.querySelectorAll('.sortable'), function(sortable){
@@ -701,7 +705,6 @@ function showPrefered(){
     listData.mentors.forEach(function(mentor){
         var preferedHTML = renderPrefered(mentor);
         mentor.students.forEach(function(student){
-            console.log(student);
             [].forEach.call(document.querySelectorAll(".studentlist>li[data-id='" + student + "']"), function(elem){
                 elem.innerHTML += preferedHTML;    
             });
@@ -757,6 +760,13 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById("overlay").addEventListener("click", function(){
         mainModal.hide();
     }, false);
+
+    [].forEach.call(document.querySelectorAll(".sortprefered"), function(selector){
+        selector.addEventListener(
+            "click",
+            onSortPreferedClick
+        )
+    });
 
     [].forEach.call(document.querySelectorAll(".mentoradd-button"), function(selector){
         selector.addEventListener(

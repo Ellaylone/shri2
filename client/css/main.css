@@ -12,6 +12,10 @@ html, body {
     cursor: pointer;
 }
 
+.clear {
+    clear: both;
+}
+
 .fielderror{
     background-color: rgba(255, 0, 0, 0.2);
 }
@@ -100,6 +104,10 @@ html, body {
   -khtml-user-drag: none;
   -webkit-user-drag: none;
   user-drag: none;
+}
+
+.sortprefered {
+    margin-top: 20px;
 }
 
 form>div{
