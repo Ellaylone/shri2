@@ -1,9 +1,10 @@
-[{
-    "name": "Group awesome",
-    "id": 1,
-    "tasks": []
-}, {
-    "name": "Ragequit",
-    "id": 2,
-    "tasks": []
-}]
+[
+    {
+        "name": "Group awesome",
+        "id": 1
+    },
+    {
+        "name": "Ragequit",
+        "id": 2
+    }
+]

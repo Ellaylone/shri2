@@ -49,8 +49,7 @@ var studentApi = (function () {
     module("fetch", function(){
         const URL_PATHS = [
             "getStudents", "getMentors", "getGroups", "getTasks",
-            "addStudents", "addMentors", "addGroups", "addTasks",
-            "editStudents", "editMentors", "editGroups", "editTasks"
+            "addStudents", "addMentors", "addGroups", "addTasks"
         ]
         const URL_PREFIX = "/api/";
 
@@ -74,7 +73,10 @@ var studentApi = (function () {
                 fetchInit.method = "GET";
             } else {
                 fetchInit.method = "POST";
-                fetchInit.body = data
+                fetchInit.headers = {
+                    "Content-type": "application/json; charset=UTF-8"
+                };
+                fetchInit.body = data;
             }
             return fetch(fetchUrl, fetchInit)
                 .then(
@@ -105,15 +107,11 @@ var studentApi = (function () {
             get: function(callback){
                 fetch("getStudents", callback);
             },
+            //NOTE объединение студентов в группы: при data.group определяет идентификатор группы студента
+            //NOTE оценки выставленные за задания передаются в data.taskResults
+            //NOTE позволяет добавить студента-участника
             save: function(data, callback){
-                //NOTE объединение студентов в группы: при data.group определяет идентификатор группы студента
-                //NOTE оценки выставленные за задания передаются в data.taskResults
-                if(data.id == 0){
-                    //NOTE позволяет добавить студента-участника
-                    fetch("addStudents", callback, data);
-                } else {
-                    fetch("editStudents", callback, data);
-                }
+                fetch("addStudents", callback, data);
             }
         }
     });
@@ -124,11 +122,7 @@ var studentApi = (function () {
                 fetch("getGroups", callback);
             },
             save: function(data, callback){
-                if(data.id == 0){
-                    fetch("addGroups", callback, data);
-                } else {
-                    fetch("editGroups", callback, data);
-                }
+                fetch("addGroups", callback, data);
             }
         }
     });
@@ -139,7 +133,6 @@ var studentApi = (function () {
         var id;
         var editCallback;
         function getStudentsFromData(data){
-            data = JSON.parse(data);
             updateStudents = data.students;
             id = data.id;
             delete data.students;
@@ -193,11 +186,12 @@ var studentApi = (function () {
             },
             save: function(data, callback){
                 //NOTE создание индивидуальных и групповых заданий
-                if(data.id == 0){
+                tempData = JSON.parse(data);
+                if(tempData.id == 0){
                     fetch("addTasks", callback, data);
                 } else {
                     editCallback = callback;
-                    fetch("editTasks", setTaskToStudents, getStudentsFromData(data));
+                    fetch("editTasks", setTaskToStudents, getStudentsFromData(tempData));
                 }
             }
         }
@@ -209,11 +203,7 @@ var studentApi = (function () {
                 fetch("getMentors", callback);
             },
             save: function(data, callback){
-                if(data.id == 0){
-                    fetch("addMentors", callback, data);
-                } else {
-                    fetch("editMentors", callback, data);
-                }
+                fetch("addMentors", callback, data);
             }
         }
     });
@@ -301,7 +291,7 @@ var studentApi = (function () {
         }
         function saveMentor(mi){
             MData[mi].students = MFinal[mi];
-            mentors.save(MData[mi], () => {});
+            mentors.save(JSON.stringify(MData[mi]), () => {});
         }
         return {
             sort: function(callback){

@@ -378,8 +378,9 @@ function renderTaskFormOneGroup(data, active){
 
 function renderTaskFormGroups(data){
     var groupCheckboxes = "";
+
     [].forEach.call(listData.groups,function(group){
-        groupCheckboxes += renderTaskFormOneGroup(group, (group.tasks.indexOf(data.id) >= 0 ? true : false));
+        groupCheckboxes += renderTaskFormOneGroup(group, false);
     });
     return `
         <div class="taskadd-groups">
@@ -737,7 +738,7 @@ function updateAllLists(){
     studentApi.tasks.get(updateTasksList);
 
     Promise.all([studentP, mentorP]).then(function(values){
-        updatePreferedSorting();
+        showPrefered();
     })
 }
 
