@@ -226,7 +226,7 @@ var studentApi = (function () {
     module("prefered", function(students){
         var mentors = module("mentors");
         var sortCallback, maxStudents, total;
-        var S = [], M = [], SFinal = [], MFinal = [], SData = [], MData = [];
+        var S = [], SID = [], M = [], MID = [], MFinal = [], MData = [];
         function controlSort(){
             var mentorsP = new Promise(
                     function(resolve, reject){
@@ -246,66 +246,63 @@ var studentApi = (function () {
                     maxStudents++;
                 }
                 formWorkArrays(values);
-                spreadStudents();
             });
         }
         function formWorkArrays(values){
             total = 0;
             values[0].forEach(function(item){
-                M[item.id] = item.preferedStudents;
-                MFinal[item.id] = [];
+                MID.push(item.id);
+                M.push(item.preferedStudents);
+                MFinal.push(new Array());
                 MData[item.id] = item;
             });
             values[1].forEach(function(item){
-                S[item.id] = item.preferedMentors;
-                SFinal[item.id] = 0;
-                SData[item.id] = item;
+                total++;
+                SID.push(item.id);
+                S.push(item.preferedMentors);
             });
+            sortStudents();
         }
-        function spreadStudents(){
-            var spreadP = new Promise(
-                function(resolve, reject){
-                    setTimeout(function(){
-                        for(var i = 0; i <= maxStudents; i++){
-                            S.forEach(function(s, si){
-                                if(s.length){
-                                    M.forEach(function(m, mi){
-                                        if(MFinal[mi].length < maxStudents && s[0] == m[0]){
-                                            MFinal[mi].push(si);
-                                            SFinal[si] = mi;
-                                            if(MFinal[mi].length >= maxStudents){
-                                                removeMentor(mi);
-                                                saveMentor(mi);
-                                            }
-                                            removeStudent(si);
-                                            S[si] = [];
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                        resolve();
-                    }, 0);
+
+        function sortStudents(){
+            for(var si = 0; si < S.length; si++){
+                if(!lookForPickControl(si, [0, maxStudents])){
+                    lookForPickControl(si, [maxStudents, M.length]);
                 }
-            ).then(sortCallback);
+            }
+            saveMentors();
         }
-        function removeStudent(si){
-            M.forEach(function(m){
-                if(m.length && m.indexOf(si) >= 0){
-                    m.splice(m.indexOf(si), 1);
+        
+
+        function lookForPickControl(si, limits){
+            var success = false;
+            for(var p = 0; p < S[si].length; p++){
+                success = lookForPick(si, p, [limits[0], limits[1]]);
+                if(success){
+                    break;
                 }
-            });
+            }
+            return success;
         }
-        function removeMentor(mi){
-            S.forEach(function(s){
-                if(s.length && s.indexOf(mi) >= 0){
-                    s.splice(s.indexOf(mi), 1);
+
+        function lookForPick(si, p, limits){
+            var topMi = MID.indexOf(S[si][p]);
+            var topM = M[topMi];
+            for(var i = limits[0]; i < limits[1]; i++){
+                if(topM[i] == SID[si] && MFinal[topMi].length < maxStudents){
+                    MFinal[topMi].push(SID[si]);
+                    return true;
+                } else {
+                    return false;
                 }
-            });
+            }
         }
-        function saveMentor(mi){
-            MData[mi].students = MFinal[mi];
-            mentors.save(JSON.stringify(MData[mi]), () => {});
+        
+        function saveMentors(){
+            for(var mi = 0; mi < MID.length; mi++){
+                MData[MID[mi]].students = MFinal[MID[mi]]; 
+                mentors.save(JSON.stringify(MData[MID[mi]]), () => {});
+            }
         }
         return {
             sort: function(callback){

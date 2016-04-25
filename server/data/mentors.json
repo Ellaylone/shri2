@@ -2,7 +2,9 @@
     {
         "name": "Ментор 1",
         "id": 1,
-        "students": [],
+        "students": [
+            3
+        ],
         "preferedStudents": [
             1,
             2,
@@ -12,7 +14,9 @@
     {
         "name": "Ментор 2",
         "id": 2,
-        "students": [],
+        "students": [
+            2
+        ],
         "preferedStudents": [
             3,
             2,
@@ -22,10 +26,12 @@
     {
         "name": "Ментор 3",
         "id": 3,
-        "students": [],
         "preferedStudents": [
             2,
             3,
+            1
+        ],
+        "students": [
             1
         ]
     }

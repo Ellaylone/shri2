@@ -111,7 +111,7 @@ function parseGroupFromRequest(req, res){
 function parseMentorFromRequest(req, res){
     return {
         name: req.body.name,
-        students: req.body.students,
+        students: (req.body.students ? req.body.students : []),
         preferedStudents: req.body.preferedStudents
     };
 }
