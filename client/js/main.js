@@ -127,7 +127,7 @@ function onStudentAddSubmit(form){
         postData = JSON.stringify(postData);
         studentApi.students.save(postData, function(data){
             if(typeof data.status != "undefined" && data.status == "ok"){
-                saveSuccess(function(){studentApi.groups.get(updateGroupsList)});
+                saveSuccess(function(){studentApi.students.get(updateStudentsList)});
             } else {
                 saveError();
             }
@@ -172,7 +172,7 @@ function onTaskAddSubmit(form){
         postData = JSON.stringify(postData);
         studentApi.tasks.save(postData, function(data){
             if(typeof data.status != "undefined" && data.status == "ok"){
-                saveSuccess(function(){studentApi.groups.get(updateGroupsList)});
+                saveSuccess(function(){studentApi.tasks.get(updateTasksList)});
             } else {
                 saveError();
             }
@@ -204,9 +204,9 @@ function onMentorAddSubmit(form){
         }
 
         postData = JSON.stringify(postData);
-        studentApi.groups.save(postData, function(data){
+        studentApi.mentors.save(postData, function(data){
             if(typeof data.status != "undefined" && data.status == "ok"){
-                saveSuccess(function(){studentApi.groups.get(updateGroupsList)});
+                saveSuccess(function(){studentApi.mentors.get(updateMentorsList)});
             } else {
                 saveError();
             }
@@ -636,7 +636,7 @@ function renderGroup(group){
 
 function renderStudent(student){
     return `
-        <li class="studentlist-student defaultlist-elem needsclick" data-data='${JSON.stringify(student)}' data-id='${student.id}' data-group-id='${student.group}'>${student.name}</li>
+        <li class="studentlist-student defaultlist-elem needsclick" data-data='${JSON.stringify(student)}' data-id='${student.id}' data-group-id='${student.group}'>${student.name}<span class="notice"></span></li>
         `;
 }
 
@@ -704,19 +704,12 @@ function updatePreferedSorting(){
 
 function showPrefered(){
     listData.mentors.forEach(function(mentor){
-        var preferedHTML = renderPrefered(mentor);
         mentor.students.forEach(function(student){
             [].forEach.call(document.querySelectorAll(".studentlist>li[data-id='" + student + "']"), function(elem){
-                elem.innerHTML += preferedHTML;    
+                elem.querySelector(".notice").innerHTML = mentor.name;
             });
         })
     })
-}
-
-function renderPrefered(mentor){
-    return `
-        <span class="notice">${mentor.name}</span>
-    `;
 }
 
 function updateAllLists(){

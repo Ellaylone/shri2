@@ -73,7 +73,7 @@ function apiPost(req, res){
                 data = parseMentorFromRequest(req, res);
             break;
             case "addTasks":
-                data = parsTaskFromRequest(req, res);
+                data = parseTaskFromRequest(req, res);
             break;
             default:
             break;
