@@ -70,7 +70,9 @@ var saveServerError = "Возникла ошибка при сохранении
 function saveSuccess(updateList){
     updateList();
     mainModal.showMessage(saveSuccessMessage);
-    setTimeout(function(){mainModal.hide()}, 1000);
+    setTimeout(function(){
+        mainModal.hide();
+    }, 1000);
 }
 
 function saveError(){
@@ -127,7 +129,15 @@ function onStudentAddSubmit(form){
         postData = JSON.stringify(postData);
         studentApi.students.save(postData, function(data){
             if(typeof data.status != "undefined" && data.status == "ok"){
-                saveSuccess(function(){studentApi.students.get(updateStudentsList)});
+                saveSuccess(function(){
+                    studentApi.students.get(function(data){
+                        updateStudentsList(data);
+                        showPrefered();
+                        listData.groups.forEach(function(group){
+                            updateStudentsGroupMark(group.id, document.querySelector(".grouplist-group[data-id='" + group.id + "']").style["border-left"]);    
+                        });
+                    })
+                });
             } else {
                 saveError();
             }
@@ -172,7 +182,17 @@ function onTaskAddSubmit(form){
         postData = JSON.stringify(postData);
         studentApi.tasks.save(postData, function(data){
             if(typeof data.status != "undefined" && data.status == "ok"){
-                saveSuccess(function(){studentApi.tasks.get(updateTasksList)});
+                saveSuccess(function(){
+                    new Promise(
+                        function(resolve, reject){
+                            studentApi.students.get(function(data){
+                                updateStudentsList(data);
+                                resolve();
+                            });
+                        }).then(function(){
+                            studentApi.tasks.get(updateTasksList);        
+                        });
+                });
             } else {
                 saveError();
             }
@@ -618,16 +638,20 @@ function renderUpdateStudentForm(title, data){
     return renderStudentForm(title, data, studentGroup + studentTask + studentTaskResults + studentMentors);
 }
 
-//NOTE lists of data
-function renderGroup(group){
-    var borderLeft = "8px solid rgba(" + parseInt(Math.random()*255) + ", " + parseInt(Math.random()*255) + ", " +  parseInt(Math.random()*255) + ", 1)";
-    var groupStudents = document.querySelectorAll(".studentlist-student[data-group-id='" + group.id + "']");
+function updateStudentsGroupMark(groupId, borderLeft){
+    var groupStudents = document.querySelectorAll(".studentlist-student[data-group-id='" + groupId + "']");
     [].forEach.call(
         groupStudents,
         function(container){
             container.style["border-left"] = borderLeft;
         }
     );
+}
+
+//NOTE lists of data
+function renderGroup(group){
+    var borderLeft = "8px solid rgba(" + parseInt(Math.random()*255) + ", " + parseInt(Math.random()*255) + ", " +  parseInt(Math.random()*255) + ", 1)";
+    updateStudentsGroupMark(group.id, borderLeft);
 
     return `
         <li class="grouplist-group defaultlist-elem needsclick" style="border-left: ${borderLeft}" data-data='${JSON.stringify(group)}'} data-id='${group.id}'>${group.name}</li>
