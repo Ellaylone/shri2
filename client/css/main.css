@@ -48,18 +48,25 @@ html, body {
     margin-right: 10px;
 }
 
+.notice {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    font-size: 13px;
+}
+
 .defaultlist {
     list-style:none;
     padding: 0px;
     border: 1px solid #381F25;
-    padding: 5px;
     margin-bottom: 10px;
 }
 
 .defaultlist-elem {
     border-bottom: 1px solid #e4e4e4;
-    padding: 5px 0 5px 5px;
-    margin: 2px 0;
+    padding: 10px 0 10px 5px;
+    margin: 2px 5px;
+    position: relative;
 }
 
 .defaultlist-elem:last-child {

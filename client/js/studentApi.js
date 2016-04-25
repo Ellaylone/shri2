@@ -259,24 +259,31 @@ var studentApi = (function () {
             });
         }
         function spreadStudents(){
-            for(var i = 0; i <= maxStudents; i++){
-                S.forEach(function(s, si){
-                    if(s.length){
-                        M.forEach(function(m, mi){
-                            if(MFinal[mi].length < maxStudents && s[0] == m[0]){
-                                MFinal[mi].push(si);
-                                SFinal[si] = mi;
-                                if(MFinal[mi].length >= maxStudents){
-                                    removeMentor(mi);
-                                    saveMentor(mi);
+            var spreadP = new Promise(
+                function(resolve, reject){
+                    setTimeout(function(){
+                        for(var i = 0; i <= maxStudents; i++){
+                            S.forEach(function(s, si){
+                                if(s.length){
+                                    M.forEach(function(m, mi){
+                                        if(MFinal[mi].length < maxStudents && s[0] == m[0]){
+                                            MFinal[mi].push(si);
+                                            SFinal[si] = mi;
+                                            if(MFinal[mi].length >= maxStudents){
+                                                removeMentor(mi);
+                                                saveMentor(mi);
+                                            }
+                                            removeStudent(si);
+                                            S[si] = [];
+                                        }
+                                    });
                                 }
-                                removeStudent(si);
-                                S[si] = [];
-                            }
-                        });
-                    }
-                });
-            }
+                            });
+                        }
+                        resolve();
+                    }, 0);
+                }
+            ).then(sortCallback);
         }
         function removeStudent(si){
             M.forEach(function(m){

@@ -693,11 +693,49 @@ function updateMentorsList(data){
     updateDefaultList(data, renderMentor, "mentorlist");
 }
 
+function updatePreferedSorting(){
+    studentApi.prefered.sort(showPrefered);
+}
+
+function showPrefered(){
+    listData.mentors.forEach(function(mentor){
+        var preferedHTML = renderPrefered(mentor);
+        mentor.students.forEach(function(student){
+            console.log(student);
+            [].forEach.call(document.querySelectorAll(".studentlist>li[data-id='" + student + "']"), function(elem){
+                elem.innerHTML += preferedHTML;    
+            });
+        })
+    })
+}
+
+function renderPrefered(mentor){
+    return `
+        <span class="notice">${mentor.name}</span>
+    `;
+}
+
 function updateAllLists(){
-    studentApi.students.get(updateStudentsList);
+    var studentP = new Promise(
+        function(resolve, reject){
+            studentApi.students.get(function(data){
+                updateStudentsList(data), 
+                resolve("got students")
+            })
+        });
+    var mentorP = new Promise(
+        function(resolve, reject){
+            studentApi.mentors.get(function(data){
+                updateMentorsList(data), 
+                resolve("got mentors")
+            })
+        });
     studentApi.groups.get(updateGroupsList);
     studentApi.tasks.get(updateTasksList);
-    studentApi.mentors.get(updateMentorsList);
+
+    Promise.all([studentP, mentorP]).then(function(values){
+        updatePreferedSorting();
+    })
 }
 
 function delegate(containers, selector, event, handler) {
